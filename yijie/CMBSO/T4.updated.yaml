@@ -1,0 +1,157 @@
+theory: null
+likelihood:
+  gaussian_mixture:
+    means:
+    - 0.02239
+    - 0.1178
+    - 3.064
+    - 1.04189
+    - 1.008
+    covs:
+    - - 1.58318359e-11
+      - 5.31781846e-11
+      - 1.56326664e-09
+      - -6.1859915e-12
+      - -7.71136683e-10
+    - - 5.31781846e-11
+      - 8.30508323e-10
+      - 7.33718082e-09
+      - 1.97599875e-11
+      - -1.03997198e-08
+    - - 1.56326664e-09
+      - 7.33718082e-09
+      - 1.45893502e-06
+      - 5.39892193e-09
+      - -1.02893513e-06
+    - - -6.1859915e-12
+      - 1.97599875e-11
+      - 5.39892193e-09
+      - 6.13736382e-11
+      - -4.93088381e-09
+    - - -7.71136683e-10
+      - -1.03997198e-08
+      - -1.02893513e-06
+      - -4.93088381e-09
+      - 1.01595487e-06
+    weights: null
+    input_params_prefix: ''
+    output_params_prefix: ''
+    derived: false
+    delay: 0
+    type: []
+    speed: -1
+    stop_at_error: false
+    version: null
+    input_params:
+    - omb
+    - omc
+    - lAs
+    - thetascen
+    - ns
+    output_params: []
+params:
+  omb:
+    prior:
+      min: 0.005
+      max: 0.1
+    ref: 0.02239
+    proposal: 0.022
+    latex: \Omega_bh^2
+  omc:
+    prior:
+      min: 0.001
+      max: 0.99
+    ref: 0.1178
+    proposal: 0.11
+    latex: \Omega_ch^2
+  lAs:
+    prior:
+      min: 1.61
+      max: 3.91
+    ref: 3.064
+    proposal: 3
+    latex: \ln{(10^{10}A_s)}
+  thetascen:
+    prior:
+      min: 0.5
+      max: 10
+    ref: 1.04189
+    proposal: 1.03
+    latex: 100\theta_*
+  ns:
+    prior:
+      min: 0.8
+      max: 1.2
+    ref: 1.008
+    proposal: 0.96
+    latex: n_s
+sampler:
+  mcmc:
+    burn_in: 0
+    max_tries: 1000000
+    covmat:
+    - - 1.58318359e-11
+      - 5.31781846e-11
+      - 1.56326664e-09
+      - -6.1859915e-12
+      - -7.71136683e-10
+    - - 5.31781846e-11
+      - 8.30508323e-10
+      - 7.33718082e-09
+      - 1.97599875e-11
+      - -1.03997198e-08
+    - - 1.56326664e-09
+      - 7.33718082e-09
+      - 1.45893502e-06
+      - 5.39892193e-09
+      - -1.02893513e-06
+    - - -6.1859915e-12
+      - 1.97599875e-11
+      - 5.39892193e-09
+      - 6.13736382e-11
+      - -4.93088381e-09
+    - - -7.71136683e-10
+      - -1.03997198e-08
+      - -1.02893513e-06
+      - -4.93088381e-09
+      - 1.01595487e-06
+    covmat_params:
+    - omb
+    - omc
+    - lAs
+    - thetascen
+    - ns
+    proposal_scale: 2.4
+    output_every: 60s
+    learn_every: 40d
+    temperature: 1
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
+    Rminus1_stop: 0.001
+    Rminus1_cl_stop: 0.2
+    Rminus1_cl_level: 0.95
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: false
+    blocking:
+    - - 1
+      - - omb
+        - omc
+        - lAs
+        - thetascen
+        - ns
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.3.1
+output: T4
+version: 3.3.1
