@@ -6,22 +6,25 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #define model
 class MLP(nn.Module):
-    def __init__(self):
+    def __init__(self, input_dim,output_dim,int_dim):
         super(MLP, self).__init__()
         self.linear =nn.Sequential(
-            nn.Linear(5, 100),
-            nn.Linear(100, 100),
+            nn.Linear(input_dim, int_dim),
+            nn.Linear(int_dim, int_dim),
             nn.Tanh(),
-            nn.Linear(100, 100),
+            nn.Linear(int_dim, int_dim),
             nn.Tanh(),
-            nn.Linear(100, 2970)
+            nn.Linear(int_dim, output_dim)
         )
     def forward(self, x):
         out = self.linear(x)
         return out
 
-model = MLP().to(device)
+model = MLP(input_dim=5,output_dim=2970,int_dim=100).to(device)
 optimizer = torch.optim.Adam(model.parameters())
+reduce_lr = True
+if reduce_lr==True:
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=10)
 fid=np.load('YZ_CMBuniform2/TT/fid.npy',allow_pickle=True)
 fid=torch.Tensor(fid)
 
@@ -115,6 +118,10 @@ for n in range(n_epoch):
             losses.append(loss_vali.cpu().detach().numpy())
 
         losses_vali.append(np.mean(losses))
+        if reduce_lr == True:
+            print('Reduce LR on plateu: ',reduce_lr)
+            scheduler.step(losses_vali[n])
+
 
     print('epoch {}, loss={}, validation loss={}, lr={} )'.format(
                         n,
