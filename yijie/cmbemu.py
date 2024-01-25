@@ -24,7 +24,6 @@ model = MLP().to(device)
 optimizer = torch.optim.Adam(model.parameters())
 fid=np.load('YZ_CMBuniform2/TT/fid.npy',allow_pickle=True)
 fid=torch.Tensor(fid)
-#loss_fn=nn.MSELoss()#/fid#simple chi^2
 
 #load in data
 samples=np.load('CMBSO/uniform2.npy',allow_pickle=True)
@@ -41,25 +40,18 @@ for i in range(2,11):
     #EE=np.vstack((EE,EEnew))
 data_vectors=TT#np.concatenate((TT,TE,EE),axis=1)
 
+#assign training and validation sets
 train_samples=samples[:150000]
 train_data_vectors=data_vectors[:150000]
 validation_samples=samples[150000:]
 validation_data_vectors=data_vectors[150000:]
-"""
-def unison_shuffled_copies(a, b):
-    assert len(a) == len(b)
-    p = np.random.permutation(len(a))
-    samples = a[p]
-    dvs     = b[p]
-    return samples, dvs
 
-train_samples, train_data_vectors = unison_shuffled_copies(train_samples, train_data_vectors)
-validation_samples, validation_data_vectors = unison_shuffled_copies(validation_samples, validation_data_vectors)
-"""
 train_samples=torch.Tensor(train_samples)
 train_data_vectors=torch.Tensor(train_data_vectors)
 validation_samples=torch.Tensor(validation_samples)
 validation_data_vectors=torch.Tensor(validation_data_vectors)
+
+#normalizing samples and data vectors to mean 0, std 1
 X_mean=torch.Tensor(train_samples.mean(axis=0, keepdims=True))
 X_std  = torch.Tensor(train_samples.std(axis=0, keepdims=True))
 Y_mean=torch.Tensor(train_data_vectors.mean(axis=0, keepdims=True))
@@ -73,7 +65,8 @@ val_Y_mean=torch.Tensor(validation_data_vectors.mean(axis=0, keepdims=True))
 val_Y_std=torch.Tensor(validation_data_vectors.std(axis=0, keepdims=True))
 X_validation=(validation_samples-val_X_mean)/val_X_std
 y_validation=(validation_data_vectors-val_Y_mean)/val_Y_std
-#load the data to torch format
+
+#load the data to batches
 batch_size=2000
 trainset    = TensorDataset(X_train, y_train)
 validset    = TensorDataset(X_validation,y_validation)
