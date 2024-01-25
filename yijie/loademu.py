@@ -17,10 +17,10 @@ class MLP(nn.Module):
     def forward(self, x):
         out = self.linear(x)
         return out
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MLP(input_dim=5,output_dim=2970,int_dim=100).to(device)
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 #load model
 PATH = "./trainedemu/trial1"
