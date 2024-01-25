@@ -84,7 +84,6 @@ validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_las
 n_epoch=100#for trial test purpose
 losses_train = []
 losses_vali = []
-loss=100.
 
 for n in range(n_epoch):
     
