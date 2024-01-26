@@ -6,21 +6,24 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #define model
 class MLP(nn.Module):
-    def __init__(self, input_dim,output_dim,int_dim):
+    def __init__(self, input_dim,output_dim,int_dim,N_layer):
         super(MLP, self).__init__()
-        self.linear =nn.Sequential(
-            nn.Linear(input_dim, int_dim),
-            nn.Linear(int_dim, int_dim),
-            nn.Tanh(),
-            nn.Linear(int_dim, int_dim),
-            nn.Tanh(),
-            nn.Linear(int_dim, output_dim)
-        )
+        modules=[]
+        modules.append(nn.Linear(input_dim, int_dim))
+        for n in range(N_layer):
+            modules.append(nn.Linear(int_dim, int_dim))
+            modules.append(nn.Tanh())
+        modules.append(nn.Linear(int_dim, output_dim))
+        self.linear =nn.Sequential(*modules)
+
     def forward(self, x):
         out = self.linear(x)
         return out
 
-model = MLP(input_dim=5,output_dim=2970,int_dim=100).to(device)
+
+
+model = MLP(input_dim=5,output_dim=2970,int_dim=100,N_layer=10).to(device)
+
 optimizer = torch.optim.Adam(model.parameters())
 reduce_lr = True
 if reduce_lr==True:
