@@ -2,38 +2,80 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.utils.data import Dataset, DataLoader, TensorDataset
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+N_thread=10
+if torch.cuda.is_available():
+    device = 'cuda'
+else:
+    device = 'cpu'
+    torch.set_num_interop_threads(N_thread) # Inter-op parallelism
+    torch.set_num_threads(N_thread) # Intra-op parallelism
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #define model
-class MLP(nn.Module):
-    def __init__(self, input_dim,output_dim,int_dim,N_layer):
-        super(MLP, self).__init__()
-        modules=[]
-        modules.append(nn.Linear(input_dim, int_dim))
-        for n in range(N_layer):
-            modules.append(nn.Linear(int_dim, int_dim))
-            modules.append(nn.Tanh())
-        modules.append(nn.Linear(int_dim, output_dim))
-        self.linear =nn.Sequential(*modules)
+class Affine(nn.Module):
+    def __init__(self):
+        super(Affine, self).__init__()
+
+        # This function is designed for the Neuro-network to learn how to normalize the data between
+        # layers. we will initiate gains and bias both at 1 
+        self.gain = nn.Parameter(torch.ones(1))
+        self.bias = nn.Parameter(torch.zeros(1))
 
     def forward(self, x):
-        out = self.linear(x)
+        return x * self.gain + self.bias
+
+
+class MLP(nn.Module):
+    def __init__(self, input_dim, output_dim, int_dim, N_layer):
+        super(MLP, self).__init__()
+        modules=[]
+
+        # Def: we will set the internal dimension as multiple of 128 (reason: just simplicity)
+        int_dim = int_dim * 128
+
+        # Def: we will only change the dimension of the datavector using linear transformations  
+        modules.append(nn.Linear(input_dim, int_dim))
+        
+        # Def: by design, a pure block has the input and output dimension to be the same
+        for n in range(N_layer):
+            # Def: This is what we defined as a pure MLP block
+            # Why the Affine function?
+            #   R: this is for the Neuro-network to learn how to normalize the data between layers
+            modules.append(Affine())
+            modules.append(nn.Linear(int_dim, int_dim))
+            modules.append(nn.Tanh())
+        
+        # Def: the transformation from the internal dimension to the output dimension of the
+        #      data vector we intend to emulate
+        modules.append(nn.Linear(int_dim, output_dim))
+        
+        # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
+        # This function stacks up layers in the modules-list in sequence to create the whole model
+        self.mlp =nn.Sequential(*modules)#
+
+    def forward(self, x):
+        #x is a cosmological parameter set you feed in the model
+        out = self.mlp(x)
         return out
 
 
-
-model = MLP(input_dim=5,output_dim=2970,int_dim=100,N_layer=10).to(device)
-
+#Set up the model and optimizer
+model = MLP(input_dim=5,output_dim=2970,int_dim=4,N_layer=3).to(device)
 optimizer = torch.optim.Adam(model.parameters())
-reduce_lr = True
+reduce_lr = True#reducing learning rate on plateau
 if reduce_lr==True:
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=10)
+
+#Set up the Covariance matrix
 fid=np.load('YZ_CMBuniform2/TT/fid.npy',allow_pickle=True)
-fid=torch.Tensor(fid)
+ell=np.arange(30,3000,1)
+ellfactor=(2*ell+1)/2
+covinv=ellfactor/fid**2
+covinv=np.diag(covinv)
+covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
-samples=np.load('CMBSO/uniform2.npy',allow_pickle=True)
-TT=np.load('YZ_CMBuniform2/TT/TT_1.npy',allow_pickle=True)
+samples=np.load('CMBSO/uniform2.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 200k points
+TT=np.load('YZ_CMBuniform2/TT/TT_1.npy',allow_pickle=True)# Only doing TT for now
 #TE=np.load('YZ_CMBuniform2/TE/TE_1.npy',allow_pickle=True)
 #EE=np.load('YZ_CMBuniform2/EE/EE_1.npy',allow_pickle=True)
 
@@ -65,45 +107,42 @@ Y_std=torch.Tensor(train_data_vectors.std(axis=0, keepdims=True))
 X_train=(train_samples-X_mean)/X_std
 y_train=(train_data_vectors-Y_mean)/Y_std
 
-val_X_mean=torch.Tensor(validation_samples.mean(axis=0, keepdims=True))
-val_X_std  = torch.Tensor(validation_samples.std(axis=0, keepdims=True))
-val_Y_mean=torch.Tensor(validation_data_vectors.mean(axis=0, keepdims=True))
-val_Y_std=torch.Tensor(validation_data_vectors.std(axis=0, keepdims=True))
-X_validation=(validation_samples-val_X_mean)/val_X_std
-y_validation=(validation_data_vectors-val_Y_mean)/val_Y_std
+X_validation=(validation_samples-X_mean)/X_std
+y_validation=(validation_data_vectors-Y_mean)/Y_std
 
-#load the data to batches
-batch_size=2000
+#load the data to batches. Do not send those to device yet to save space
+batch_size=256
 trainset    = TensorDataset(X_train, y_train)
 validset    = TensorDataset(X_validation,y_validation)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
 validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
 
 #training
-n_epoch=100#for trial test purpose
+n_epoch=200#for trial test purpose
 losses_train = []
 losses_vali = []
 
 for n in range(n_epoch):
     
-    model.train()
+    
     losses=[]
     for i, data in enumerate(trainloader):
-        X = data[0].to(device)
-        Y_batch = data[1].to(device)
+        model.train()
+        X = data[0].to(device)# send to device one by one
+        Y_batch = data[1].to(device)# send to device one by one
         Y_pred  = model(X)
-        diff = (Y_batch - Y_pred)*Y_std+Y_mean
+        diff = (Y_batch - Y_pred)*Y_std# Scale back to unit by *Y_std
 
-        dif=torch.div(diff,fid)
-        loss1 = dif@ torch.t(dif)
-        #print(loss)
-        loss=torch.mean(torch.diag(loss1))
+        
+        loss1 = (diff@covinv)@torch.t(diff)
+        
+        loss=torch.mean(torch.diagonal(loss1,0))# torch.diagonal will only give you the diagonal part of the matrix
         losses.append(loss.cpu().detach().numpy())
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    losses_train.append(np.mean(losses))
+    losses_train.append(np.mean(losses))# We take means since a loss function should return a single real number
 
     with torch.no_grad():
         model.eval()
@@ -113,11 +152,12 @@ for n in range(n_epoch):
             X_v       = data[0].to(device)
             Y_v_batch = data[1].to(device)
             Y_v_pred = model(X_v) 
-            v_diff = (Y_v_batch - Y_v_pred )* val_Y_std+val_Y_mean
-            v_dif=torch.div(v_diff,fid)
-            loss1 = v_dif@ torch.t(v_dif)
+            v_diff = (Y_v_batch - Y_v_pred )*Y_std
+            
+            loss1 = (v_diff@covinv)@torch.t(v_diff)
+
             #print(loss)
-            loss_vali=torch.mean(torch.diag(loss1))
+            loss_vali=torch.mean(torch.diagonal(loss1,0))
             losses.append(loss_vali.cpu().detach().numpy())
 
         losses_vali.append(np.mean(losses))
@@ -136,8 +176,10 @@ for n in range(n_epoch):
 
 
 
-# Save
-PATH = "./trainedemu/trial1"
+# Save the model and extra parameters
+PATH = "./trainedemu/trialb256"
 torch.save(model.state_dict(), PATH+'.pt')
 extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
 np.save(PATH+'.npy',extrainfo)
+np.save(PATH+'losstrain.npy',losses_train)
+np.save(PATH+'lossvali.npy',losses_vali)
