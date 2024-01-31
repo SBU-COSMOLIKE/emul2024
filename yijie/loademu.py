@@ -74,8 +74,9 @@ model.eval()
 #set up predict
 def predict(X):
     with torch.no_grad():
-        y_pred = (model(((X - X_mean) / X_std).to(torch.float32)) *Y_std.to(torch.float32)+Y_mean.to(torch.float32)).numpy()
+        y_pred = (model(((X - X_mean) / X_std).float()).float() *Y_std.float()+Y_mean.float()).numpy()
     return y_pred
+
 
 #just a small trial to see if the pipline works
 X_try=np.array([0.02,0.1,69,3,1.01])
