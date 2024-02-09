@@ -6,41 +6,48 @@ import camb
 import scipy.linalg
 from camb import model, initialpower
 from camb.dark_energy import DarkEnergyPPF, DarkEnergyFluid
+import time
+if "-f" in sys.argv:
+    idx = sys.argv.index('-f')
+n= int(sys.argv[idx+1])
 
 comm      = MPI.COMM_WORLD
 rank      = comm.Get_rank()
 num_ranks = comm.Get_size()
 
-file_name       = './YZ_samples/LHS/coslhc'
+file_name       = './YZ_samples/LHS/coslhc_'+str(n)
 cosmology_file  = file_name + '.npy'
-output_file     = file_name + '_testoutput' + '.npy'
+output_file     = file_name + '_output' + '.npy'
 
-camb_accuracy_boost   = 1#test 2.5
-camb_l_sampple_boost  = 1# test50    # 50 = every ell is computed
+camb_accuracy_boost   = 1.8#test 2.5
+camb_l_sampple_boost  = 10# test50    # 50 = every ell is computed
 camb_ell_min          = 2#30
 camb_ell_max          = 5000
 camb_ell_range        = camb_ell_max  - camb_ell_min 
 camb_num_spectra      = 4
 
-total_num_dvs  = 0
+total_num_dvs  = int(1e6)
 
 if rank == 0:
+    start=time.time()
     param_info_total = np.load(
         cosmology_file,
         allow_pickle = True
     )
     total_num_dvs = len(param_info_total)
 
-    for i in range(num_ranks):
+    param_info = param_info_total[0:total_num_dvs:num_ranks]#reading for 0th rank input
+
+    for i in range(1,num_ranks):#sending other ranks' data
         comm.send(
             param_info_total[i:total_num_dvs:num_ranks], 
             dest = i, 
             tag  = 1
         )
-
-
-param_info = comm.recv(source = 0, tag = 1)
-
+else:
+    
+    param_info = comm.recv(source = 0, tag = 1)
+    
 num_datavector = len(param_info)
 
 total_cls = np.zeros(
@@ -75,10 +82,11 @@ for i in range(num_datavector):
     camb_params.set_accuracy(
         AccuracyBoost  = camb_accuracy_boost, 
         lSampleBoost   = camb_l_sampple_boost, 
-        lAccuracyBoost = 1  # we wont change the number of multipoles in the hierarchy
+        lAccuracyBoost = 3  # we wont change the number of multipoles in the hierarchy
     )
 
     try:
+        
         results = camb.get_results(camb_params)
         
         powers  = results.get_cmb_power_spectra(
@@ -86,6 +94,7 @@ for i in range(num_datavector):
             CMB_unit = 'muK',
             raw_cl   = True
         )
+        
     except:
         
         total_cls[i] = np.ones((camb_ell_range, camb_num_spectra)) # put 1s for all   
@@ -105,7 +114,7 @@ if rank == 0:
     result_cls[0:total_num_dvs:num_ranks,:,1] = total_cls[:,:,3] ## TE
         
     result_cls[0:total_num_dvs:num_ranks,:,2] = total_cls[:,:,1] ## EE
-    
+    print('0th written in')
     for i in range(1,num_ranks):
         #receive data vectors from other ranks
         
@@ -118,8 +127,11 @@ if rank == 0:
         result_cls[i:total_num_dvs:num_ranks,:,2] = rec[:,:,1] ## EE
 
     np.save(output_file, result_cls)
+    stop=start=time.time()
+    print('total time is ',stop-start)
     
 else:
     #on other ranks, send the data vectors.
     comm.send(total_cls, dest = 0, tag = 0)
+    print(rank,' sending to 0')
 
