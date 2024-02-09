@@ -6,7 +6,7 @@ import camb
 import scipy.linalg
 from camb import model, initialpower
 from camb.dark_energy import DarkEnergyPPF, DarkEnergyFluid
-import time
+#import time
 if "-f" in sys.argv:
     idx = sys.argv.index('-f')
 n= int(sys.argv[idx+1])
@@ -29,7 +29,7 @@ camb_num_spectra      = 4
 total_num_dvs  = int(1e6)
 
 if rank == 0:
-    start=time.time()
+    #start=time.time()
     param_info_total = np.load(
         cosmology_file,
         allow_pickle = True
@@ -118,8 +118,10 @@ if rank == 0:
     for i in range(1,num_ranks):
         #receive data vectors from other ranks
         
-        rec = comm.recv(source = i, tag = 0)
-        
+        #rec = comm.recv(source = i, tag = 0)
+        req = comm.Irecv(total_cls, source=i)# non-blocking receive
+        req.Wait()
+        rec=total_cls# non-blocking receive requires one more step of reading the array out
         result_cls[i:total_num_dvs:num_ranks,:,0] = rec[:,:,0] ## TT
 
         result_cls[i:total_num_dvs:num_ranks,:,1] = rec[:,:,3] ## TE
@@ -127,11 +129,14 @@ if rank == 0:
         result_cls[i:total_num_dvs:num_ranks,:,2] = rec[:,:,1] ## EE
 
     np.save(output_file, result_cls)
-    stop=start=time.time()
-    print('total time is ',stop-start)
+    #stop=time.time()
+    print('finished')
     
 else:
     #on other ranks, send the data vectors.
-    comm.send(total_cls, dest = 0, tag = 0)
+    print(rank, ' ready')
+    #comm.send(total_cls, dest = 0, tag = 0)
+    req = comm.Isend(total_cls, dest=0)# non-blocking send
+    req.Wait()
     print(rank,' sending to 0')
 
