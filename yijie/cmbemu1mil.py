@@ -78,21 +78,16 @@ covinv=np.load('YZ_samples/LHS/cosvarinv.npy',allow_pickle=True)
 covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
-samples=np.load('YZ_samples/LHS/coslhc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
+samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
 input_size=len(samples[0])
-data_vectors=np.load('YZ_samples/LHS/coslhc_0_output.npy',allow_pickle=True)# Only doing TT for now
-
-
-for i in range(1,15):
-    datanew=np.load('YZ_samples/LHS/coslhc_'+str(i)+'_output.npy',allow_pickle=True)
-    data_vectors=np.vstack((data_vectors,datanew))
+data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output.npy',allow_pickle=True)
 
 out_size=3*len(data_vectors[0])
 #assign training and validation sets
-train_samples=samples[:5000]
-train_data_vectors=data_vectors[:5000]
-validation_samples=samples[5000:10000]
-validation_data_vectors=data_vectors[5000:10000]
+train_samples=samples[:400000]
+train_data_vectors=data_vectors[:400000]
+validation_samples=samples[400000:]
+validation_data_vectors=data_vectors[400000:]
 
 train_samples=torch.Tensor(train_samples)
 train_data_vectors=torch.Tensor(train_data_vectors)
@@ -105,9 +100,11 @@ X_std  = torch.Tensor(train_samples.std(axis=0, keepdims=True))
 Y_mean=torch.Tensor(train_data_vectors.mean(axis=0, keepdims=True))
 Y_std=torch.Tensor(train_data_vectors.std(axis=0, keepdims=True))
 X_train=(train_samples-X_mean)/X_std
+X_train[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
 y_train=(train_data_vectors-Y_mean)/Y_std
 
 X_validation=(validation_samples-X_mean)/X_std
+X_validation[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
 y_validation=(validation_data_vectors-Y_mean)/Y_std
 
 #load the data to batches. Do not send those to device yet to save space
@@ -118,7 +115,7 @@ trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_las
 validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
 
 #Set up the model and optimizer
-model = MLP(input_dim=input_size,output_dim=out_size,int_dim=4,N_layer=3).to(device)
+model = MLP(input_dim=input_size,output_dim=out_size,int_dim=128,N_layer=3).to(device)
 
 optimizer = torch.optim.Adam(model.parameters())
 
@@ -127,7 +124,7 @@ if reduce_lr==True:
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=10)
 
 #training
-n_epoch=200#for trial test purpose
+n_epoch=1000#for trial test purpose
 losses_train = []
 losses_vali = []
 
@@ -140,9 +137,11 @@ for n in range(n_epoch):
         X = data[0].to(device)# send to device one by one
         Y_batch = data[1].to(device)# send to device one by one
         Y_pred  = model(X)
+        #print((Y_pred), 'pred')
+
         Y_pred=torch.reshape(Y_pred, (256,4998, 3))
         diff = (Y_batch - Y_pred)*Y_std# Scale back to unit by *Y_std
-
+        
 
         
         loss1 = torch.einsum('kli,lij,klj->k',diff,covinv,diff)# wil implement with torch.einsum
@@ -189,7 +188,7 @@ for n in range(n_epoch):
 
 
 # Save the model and extra parameters
-PATH = "./trainedemu/trialb256"
+PATH = "./trainedemu/trial1milaccb256"
 torch.save(model.state_dict(), PATH+'.pt')
 extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
 np.save(PATH+'.npy',extrainfo)
