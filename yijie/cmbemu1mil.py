@@ -84,10 +84,21 @@ data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output.npy',allow_pickle=True)
 
 out_size=3*len(data_vectors[0])
 #assign training and validation sets
-train_samples=samples[:400000]
-train_data_vectors=data_vectors[:400000]
-validation_samples=samples[400000:]
-validation_data_vectors=data_vectors[400000:]
+vnum=0
+train_samples=[]
+train_data_vectors=[]
+validation_samples=[]
+validation_data_vectors=[]
+for ind in range(len(samples)):
+    samp=samples[ind]
+    if (0.01<samp[0]<0.035) and (0.005<samp[1]<0.85) and (30<samp[2]<90) and (0.02<samp[3]<0.75) and (0.8<samp[4]<1.2) and (1.7<samp[5]<4.5) and vnum<=int(1e5):
+        validation_samples.append(samp)
+        validation_data_vectors.append(data_vectors[ind])
+        vnum+=1
+    else:
+        train_samples.append(samp)
+        train_data_vectors.append(data_vectors[ind])
+
 
 train_samples=torch.Tensor(train_samples)
 train_data_vectors=torch.Tensor(train_data_vectors)
