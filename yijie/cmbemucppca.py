@@ -147,10 +147,10 @@ vali_pca[:,:,0]=TTPCA.transform(validation_data_vectors[:,:,0])
 vali_pca[:,:,1]=TTPCA.transform(validation_data_vectors[:,:,1])
 vali_pca[:,:,2]=TTPCA.transform(validation_data_vectors[:,:,2])
 
-train_samples=torch.Tensor(trainpca)
+train_samples=torch.Tensor(train_pca)
 train_data_vectors=torch.Tensor(train_data_vectors)
 validation_samples=torch.Tensor(validation_samples)
-validation_data_vectors=torch.Tensor(valipca)
+validation_data_vectors=torch.Tensor(vali_pca)
 
 #normalizing samples and data vectors to mean 0, std 1
 X_mean=torch.Tensor(train_samples.mean(axis=0, keepdims=True))
