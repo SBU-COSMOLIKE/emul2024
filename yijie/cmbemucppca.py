@@ -165,6 +165,7 @@ for n in range(n_epoch):
         #Y_pred=torch.reshape(Y_pred, (batch_size,n_pcas,3))
         
         loss1 = torch.sqrt(torch.einsum('kl,kl->k',diff,diff))# implement with torch.einsum
+        loss1=loss1.sort()[0][:int(-0.02*batch_size)]
         #print(loss1)
         loss=torch.mean(loss1)
 
@@ -190,6 +191,7 @@ for n in range(n_epoch):
             v_diff =torch.matmul(diff_v_b,transform_matrix)*samp_std# Scale back to unit by *Y_std
             
             loss1 = torch.sqrt(torch.einsum('kl,kl->k',v_diff,v_diff))
+            loss1=loss1.sort()[0][:int(-0.02*batch_size)]
 
             #print(loss)
             loss_vali=torch.mean(loss1)
