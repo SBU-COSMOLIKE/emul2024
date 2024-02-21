@@ -89,14 +89,19 @@ covinv=np.load('YZ_samples/LHS/cosvarinv.npy',allow_pickle=True)[:camb_ell_range
 covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
-samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
+train_samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
 vali_samples=np.load('YZ_samples/Uniform/input/cosuni_0.npy',allow_pickle=True)
-input_size=len(samples[0])
-data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
-data_vectors=np.log(data_vectors)
+input_size=len(train_samples[0])
+train_data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
+train_data_vectors=np.log(train_data_vectors)
 vali_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_0_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
-vali_data_vectors=np.log(vali_data_vectors)
-out_size=1*len(data_vectors[0])
+for i in range(1,10):
+    samp_new=np.load('YZ_samples/Uniform/input/cosuni_'+str(i)+'.npy',allow_pickle=True)
+    dv_new=np.load('YZ_samples/Uniform/output/cosuni_'+str(i)+'_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
+    vali_samples=np.vstack((vali_samples,samp_new))
+    vali_data_vectors=np.vstack((vali_data_vectors,dv_new))
+
+out_size=1*len(train_data_vectors[0])
 #assign training and validation sets
 model = MLP(input_dim=input_size,output_dim=out_size,int_dim=4,N_layer=4)
 optimizer = torch.optim.Adam(model.parameters())
@@ -108,8 +113,6 @@ model = nn.DataParallel(model)
 model.to(device)
 
 
-train_samples=[]
-train_data_vectors=[]
 validation_samples=[]
 validation_data_vectors=[]
 for ind in range(len(vali_samples)):
@@ -120,15 +123,13 @@ for ind in range(len(vali_samples)):
         validation_data_vectors.append(dv)
         
     else:
-        train_samples.append(samp)
-        train_data_vectors.append(dv)
+        placeholder=1
 
 
-train_samples=np.array(train_samples)
-train_data_vectors=np.array(train_data_vectors)
+
 validation_samples=np.array(validation_samples)
 validation_data_vectors=np.array(validation_data_vectors)
-
+validation_data_vectors=np.log(validation_data_vectors)
 train_samples=torch.Tensor(train_samples)
 train_data_vectors=torch.Tensor(train_data_vectors)
 validation_samples=torch.Tensor(validation_samples)
