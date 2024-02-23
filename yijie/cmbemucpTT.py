@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import sys, os
 from torch.utils.data import Dataset, DataLoader, TensorDataset
+
 '''
 N_thread=10
 
@@ -85,7 +86,7 @@ class MLP(nn.Module):
 
 fid=np.load('YZ_samples/LHS/fid.npy',allow_pickle=True)
 
-covinv=np.load('YZ_samples/LHS/cosvarinv.npy',allow_pickle=True)[:camb_ell_range]
+covinv=np.load('YZ_samples/LHS/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]
 covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
@@ -93,7 +94,7 @@ train_samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This i
 vali_samples=np.load('YZ_samples/Uniform/input/cosuni_0.npy',allow_pickle=True)
 input_size=len(train_samples[0])
 train_data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
-train_data_vectors=np.log(train_data_vectors)
+
 vali_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_0_output.npy',allow_pickle=True)[:,:camb_ell_range,0]
 for i in range(1,10):
     samp_new=np.load('YZ_samples/Uniform/input/cosuni_'+str(i)+'.npy',allow_pickle=True)
@@ -104,7 +105,7 @@ for i in range(1,10):
 out_size=1*len(train_data_vectors[0])
 #assign training and validation sets
 model = MLP(input_dim=input_size,output_dim=out_size,int_dim=4,N_layer=4)
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 reduce_lr = True#reducing learning rate on plateau
 if reduce_lr==True:
@@ -126,10 +127,9 @@ for ind in range(len(vali_samples)):
         placeholder=1
 
 
-
 validation_samples=np.array(validation_samples)
 validation_data_vectors=np.array(validation_data_vectors)
-validation_data_vectors=np.log(validation_data_vectors)
+
 train_samples=torch.Tensor(train_samples)
 train_data_vectors=torch.Tensor(train_data_vectors)
 validation_samples=torch.Tensor(validation_samples)
@@ -159,9 +159,11 @@ validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_las
 #Set up the model and optimizer
 
 #training
-n_epoch=350#for trial test purpose
+n_epoch=300#for trial test purpose
 losses_train = []
 losses_vali = []
+losses_train_med = []
+losses_vali_med = []
 
 for n in range(n_epoch):
     
@@ -179,8 +181,8 @@ for n in range(n_epoch):
         
 
         
-        loss1 = torch.sqrt(torch.einsum('kl,kl->k',diff,diff))# implement with torch.einsum
-        loss1=loss1.sort()[0][:int(-0.02*batch_size)]
+        loss1 =torch.diag(diff @ covinv @ torch.t(diff))
+        loss1=loss1.sort()[0][:int(-0.01*batch_size)]
         #print(loss1)
         loss=torch.mean(loss1)
         #print(loss)
@@ -190,6 +192,7 @@ for n in range(n_epoch):
         optimizer.step()
 
     losses_train.append(np.mean(losses))# We take means since a loss function should return a single real number
+    losses_train_med.append(np.median(losses))
 
     with torch.no_grad():
         model.eval()
@@ -202,12 +205,13 @@ for n in range(n_epoch):
             #Y_v_pred=torch.reshape(Y_v_pred, (batch_size,camb_ell_range, 3))
             v_diff = (Y_v_batch - Y_v_pred )*Y_std
             
-            loss1 = torch.sqrt(torch.einsum('kl,kl->k',v_diff,v_diff))# implement with torch.einsum
-            loss1=loss1.sort()[0][:int(-0.02*batch_size)]
+            loss1 = torch.diag(v_diff @ covinv @ torch.t(v_diff))
+            loss1=loss1.sort()[0][:int(-0.01*batch_size)]
             loss_vali=torch.mean(loss1)
             losses.append(loss_vali.cpu().detach().numpy())
 
         losses_vali.append(np.mean(losses))
+        losses_vali_med.append(np.median(losses))
         if reduce_lr == True:
             print('Reduce LR on plateu: ',reduce_lr)
             scheduler.step(losses_vali[n])
@@ -227,9 +231,11 @@ for n in range(n_epoch):
 
 
 # Save the model and extra parameters
-PATH = "./trainedemucp/MSETTlog"
+PATH = "./trainedemucp/chiTTlowellg1b"+str(batch_size)#g1 here meaning gut 1%
 torch.save(model.state_dict(), PATH+'.pt')
 extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
 np.save(PATH+'.npy',extrainfo)
 np.save(PATH+'losstrain.npy',losses_train)
 np.save(PATH+'lossvali.npy',losses_vali)
+np.save(PATH+'losstrainmed.npy',losses_train_med)
+np.save(PATH+'lossvalimed.npy',losses_vali_med)
