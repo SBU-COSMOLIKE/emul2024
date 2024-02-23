@@ -89,9 +89,9 @@ class MLP(nn.Module):
 #covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
-train_samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
+train_samples=np.load('parametersamples/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
 input_size=len(train_samples[0])
-train_data_vectors=np.load('YZ_samples/LHS/coslhc_acc_pca.npy',allow_pickle=True)
+train_data_vectors=np.load('pcadv/coslhc_acc_nlog_pca.npy',allow_pickle=True)
 
 out_size=len(train_data_vectors[0])
 #assign training and validation sets
@@ -104,11 +104,14 @@ if reduce_lr==True:
 model = nn.DataParallel(model)
 model.to(device)
 
-validation_samples=np.load('YZ_samples/Uniform/input/cosuni_acc_10.npy',allow_pickle=True)
+covinv=np.load('extra/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]
+covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
-validation_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_10_output_pca.npy',allow_pickle=True)
+validation_samples=np.load('parametersamples/cosuni_acc_10.npy',allow_pickle=True)
 
-extra_info=np.load('YZ_samples/PCAcomp/msett_sampleinfo.npy',allow_pickle=True)
+validation_data_vectors=np.load('pcadv/cosuni_10_nlog_output_pca.npy',allow_pickle=True)
+
+extra_info=np.load('extra/msett_nlog_sampleinfo.npy',allow_pickle=True)
 samp_mean=extra_info.item()['sample_mean']
 samp_std=extra_info.item()['sample_std']
 samp_mean=torch.Tensor(samp_mean).to(device)
@@ -132,11 +135,11 @@ X_validation[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in t
 y_validation=(validation_data_vectors-Y_mean)/Y_std
 Y_std=Y_std.to(device)
 
-transform_matrix=np.load('YZ_samples/PCAcomp/msett_comp.npy',allow_pickle=True)
+transform_matrix=np.load('extra/msett_nlog_comp.npy',allow_pickle=True)
 transform_matrix=torch.Tensor(transform_matrix).to(device)
 
 
-batch_size=512
+batch_size=256
 trainset    = TensorDataset(X_train, y_train)
 validset    = TensorDataset(X_validation,y_validation)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
@@ -164,7 +167,7 @@ for n in range(n_epoch):
 
         #Y_pred=torch.reshape(Y_pred, (batch_size,n_pcas,3))
         
-        loss1 = torch.sqrt(torch.einsum('kl,kl->k',diff,diff))# implement with torch.einsum
+        loss1 = torch.diag(diff @ covinv @ torch.t(diff))#torch.sqrt(torch.einsum('kl,kl->k',diff,diff))# implement with torch.einsum
         loss1=loss1.sort()[0][:int(-0.02*batch_size)]
         #print(loss1)
         loss=torch.mean(loss1)
@@ -190,7 +193,7 @@ for n in range(n_epoch):
             diff_v_b=(Y_v_batch-Y_v_pred)*Y_std
             v_diff =torch.matmul(diff_v_b,transform_matrix)*samp_std# Scale back to unit by *Y_std
             
-            loss1 = torch.sqrt(torch.einsum('kl,kl->k',v_diff,v_diff))
+            loss1 = torch.diag(v_diff @ covinv @ torch.t(v_diff))
             loss1=loss1.sort()[0][:int(-0.02*batch_size)]
 
             #print(loss)
@@ -217,7 +220,7 @@ for n in range(n_epoch):
 
 
 # Save the model and extra parameters
-PATH = "./trainedemupca/pca"+str(batch_size)
+PATH = "./trainedemupca/pcanlog"+str(batch_size)
 torch.save(model.state_dict(), PATH+'.pt')
 extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
 np.save(PATH+'.npy',extrainfo)
