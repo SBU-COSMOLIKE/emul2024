@@ -1,0 +1,235 @@
+import torch
+import torch.nn as nn
+import numpy as np
+import sys, os
+from torch.utils.data import Dataset, DataLoader, TensorDataset
+if "-f" in sys.argv:
+    idx = sys.argv.index('-f')
+bnum= int(sys.argv[idx+1])
+'''
+N_thread=10
+
+if torch.cuda.is_available():
+
+    device = 'cuda'# using gpu if gpu is available
+
+else:
+
+    device = 'cpu'
+
+    torch.set_num_interop_threads(N_thread) # Inter-op parallelism
+
+    torch.set_num_threads(N_thread) # Intra-op parallelism
+
+#define model
+print(device)
+'''
+
+
+camb_ell_min          = 2#30
+camb_ell_max          = 2509
+camb_ell_range        = camb_ell_max  - camb_ell_min 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+class Affine(nn.Module):
+    def __init__(self):
+        super(Affine, self).__init__()
+
+        # This function is designed for the Neuro-network to learn how to normalize the data between
+        # layers. we will initiate gains and bias both at 1 
+        self.gain = nn.Parameter(torch.ones(1))
+
+        self.bias = nn.Parameter(torch.zeros(1))
+
+    def forward(self, x):
+
+        return x * self.gain + self.bias
+
+
+class MLP(nn.Module):
+
+    def __init__(self, input_dim, output_dim, int_dim, N_layer):
+
+        super(MLP, self).__init__()
+
+        modules=[]
+
+        # Def: we will set the internal dimension as multiple of 128 (reason: just simplicity)
+        int_dim = int_dim * 128
+
+        # Def: we will only change the dimension of the datavector using linear transformations  
+        modules.append(nn.Linear(input_dim, int_dim))
+        
+        # Def: by design, a pure block has the input and output dimension to be the same
+        for n in range(N_layer):
+            # Def: This is what we defined as a pure MLP block
+            # Why the Affine function?
+            #   R: this is for the Neuro-network to learn how to normalize the data between layers
+            modules.append(Affine())
+            modules.append(nn.Linear(int_dim, int_dim))
+            modules.append(nn.Tanh())
+        
+        # Def: the transformation from the internal dimension to the output dimension of the
+        #      data vector we intend to emulate
+        modules.append(nn.Linear(int_dim, output_dim))
+        
+        # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
+        # This function stacks up layers in the modules-list in sequence to create the whole model
+        self.mlp =nn.Sequential(*modules)#
+
+    def forward(self, x):
+        #x is a cosmological parameter set you feed in the model
+        out = self.mlp(x)
+
+        return out
+
+
+#Set up the Covariance matrix
+
+fid=np.load('YZ_samples/LHS/fid.npy',allow_pickle=True)
+
+covinv=np.load('YZ_samples/LHS/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]
+covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
+
+#load in data
+train_samples=np.load('YZ_samples/Uniform/input/cosuni_acc_20.npy',allow_pickle=True)
+
+validation_samples=np.load('YZ_samples/Uniform/input/cosuni_acc_50_vali.npy',allow_pickle=True)
+input_size=len(train_samples[0])
+train_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_20_output_acc.npy',allow_pickle=True)[:,:camb_ell_range]
+
+validation_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_50_output_acc_vali.npy',allow_pickle=True)[:,:camb_ell_range]
+
+add=[30,40]
+for i in add:
+    samp_new=np.load('YZ_samples/Uniform/input/cosuni_acc_'+str(i)+'.npy',allow_pickle=True)
+    dv_new=np.load('YZ_samples/Uniform/output/cosuni_'+str(i)+'_output_acc.npy',allow_pickle=True)[:,:camb_ell_range]
+    train_samples=np.vstack((train_samples,samp_new))
+    train_data_vectors=np.vstack((train_data_vectors,dv_new))
+
+out_size=1*len(train_data_vectors[0])
+#assign training and validation sets
+model = MLP(input_dim=input_size,output_dim=out_size,int_dim=4,N_layer=4)
+optimizer = torch.optim.Adam(model.parameters())
+
+reduce_lr = True#reducing learning rate on plateau
+if reduce_lr==True:
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=10)
+model = nn.DataParallel(model)
+model.to(device)
+PATH = "./trainedemucp/chiTTlowellb256"
+extrainfo=np.load(PATH+'.npy',allow_pickle=True)
+X_mean=extrainfo.item()['X_mean']
+X_std=extrainfo.item()['X_std']
+Y_mean=extrainfo.item()['Y_mean']
+Y_std=extrainfo.item()['Y_std']
+model.load_state_dict(torch.load(PATH+'.pt',map_location=device))
+
+
+
+train_samples=torch.Tensor(train_samples)
+train_data_vectors=torch.Tensor(train_data_vectors)
+validation_samples=torch.Tensor(validation_samples)
+validation_data_vectors=torch.Tensor(validation_data_vectors)
+
+#normalizing samples and data vectors to mean 0, std 1
+
+X_train=(train_samples-X_mean)/X_std
+X_train[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
+y_train=(train_data_vectors-Y_mean)/Y_std
+
+X_validation=(validation_samples-X_mean)/X_std
+X_validation[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
+y_validation=(validation_data_vectors-Y_mean)/Y_std
+Y_std=Y_std.to(device)
+#load the data to batches. Do not send those to device yet to save space
+
+batch_size=256
+trainset    = TensorDataset(X_train, y_train)
+validset    = TensorDataset(X_validation,y_validation)
+trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
+validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
+
+#Set up the model and optimizer
+
+#training
+n_epoch=400#for trial test purpose
+losses_train = []
+losses_vali = []
+losses_train_med = []
+losses_vali_med = []
+
+for n in range(n_epoch):
+    
+    
+    losses=[]
+    for i, data in enumerate(trainloader):
+        model.train()
+        X = data[0].to(device)# send to device one by one
+        Y_batch = data[1].to(device)# send to device one by one
+        Y_pred  = model(X).to(device)
+        #print((Y_pred), 'pred')
+
+        #Y_pred=torch.reshape(Y_pred, (batch_size,camb_ell_range, 3))
+        diff = (Y_batch - Y_pred)*Y_std# Scale back to unit by *Y_std
+        
+
+        
+        loss1 = torch.diag(diff @ covinv @ torch.t(diff))# implement with torch.einsum
+        loss1=loss1.sort()[0][:int(-0.01*batch_size)]
+        #print(loss1)
+        loss=torch.mean(loss1)
+        #print(loss)
+        losses.append(loss.cpu().detach().numpy())
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    losses_train.append(np.mean(losses))# We take means since a loss function should return a single real number
+    losses_train_med.append(np.median(losses))
+
+    with torch.no_grad():
+        model.eval()
+        
+        losses = []
+        for i, data in enumerate(validloader):
+            X_v       = data[0].to(device)
+            Y_v_batch = data[1].to(device)
+            Y_v_pred = model(X_v).to(device)
+            #Y_v_pred=torch.reshape(Y_v_pred, (batch_size,camb_ell_range, 3))
+            v_diff = (Y_v_batch - Y_v_pred )*Y_std
+            
+            loss1 = torch.diag(v_diff @ covinv @ torch.t(v_diff))# implement with torch.einsum
+            loss1=loss1.sort()[0][:int(-0.01*batch_size)]
+            loss_vali=torch.mean(loss1)
+            losses.append(loss_vali.cpu().detach().numpy())
+
+        losses_vali.append(np.mean(losses))
+        losses_vali_med.append(np.median(losses))
+        if reduce_lr == True:
+            print('Reduce LR on plateu: ',reduce_lr)
+            scheduler.step(losses_vali[n])
+
+    #if optimizer.param_groups[0]['lr']<1e-9:
+
+
+
+    print('epoch {}, loss={}, validation loss={}, lr={} )'.format(
+                        n,
+                        losses_train[-1],
+                        losses_vali[-1],
+                        optimizer.param_groups[0]['lr']
+                        
+                    ))#, total runtime: {} ({} average))
+
+
+
+# Save the model and extra parameters
+PATH = "./trainedemucp/chiTTlowellb256more"+str(batch_size)#g1 here meaning gut 1%
+torch.save(model.state_dict(), PATH+'.pt')
+#extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
+#np.save(PATH+'.npy',extrainfo)
+np.save(PATH+'losstrain.npy',losses_train)
+np.save(PATH+'lossvali.npy',losses_vali)
+np.save(PATH+'losstrainmed.npy',losses_train_med)
+np.save(PATH+'lossvalimed.npy',losses_vali_med)
