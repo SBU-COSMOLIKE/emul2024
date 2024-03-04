@@ -185,7 +185,7 @@ for n in range(n_epoch):
         loss1,index=loss1.sort()#[:int(-0.02*batch_size)]
         #print(loss1)
         loss1=loss1[:int(-0.04*batch_size)]
-        extra=torch.sqrt(torch.diag(diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(diff[index[int(-0.04*batch_size):].numpy()])))/np.sqrt(camb_ell_range)
+        extra=torch.sqrt(torch.diag(diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(diff[index[int(-0.04*batch_size):].numpy()])))
         loss1=torch.cat((loss1,extra))
         loss=torch.mean(loss1)
         #print(loss)
@@ -212,7 +212,7 @@ for n in range(n_epoch):
             loss1,index=loss1.sort()#[:int(-0.02*batch_size)]
             #print(loss1)
             loss1=loss1[:int(-0.04*batch_size)]
-            extra=torch.sqrt(torch.diag(v_diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(v_diff[index[int(-0.04*batch_size):].numpy()])))/np.sqrt(camb_ell_range)
+            extra=torch.sqrt(torch.diag(v_diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(v_diff[index[int(-0.04*batch_size):].numpy()])))
             loss1=torch.cat((loss1,extra))
             loss_vali=torch.mean(loss1)
             losses.append(loss_vali.cpu().detach().numpy())
