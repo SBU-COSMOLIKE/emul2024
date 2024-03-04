@@ -3,9 +3,7 @@ import torch.nn as nn
 import numpy as np
 import sys, os
 from torch.utils.data import Dataset, DataLoader, TensorDataset
-if "-f" in sys.argv:
-    idx = sys.argv.index('-f')
-bnum= int(sys.argv[idx+1])
+
 '''
 N_thread=10
 
@@ -151,8 +149,8 @@ X_validation[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in t
 y_validation=(validation_data_vectors-Y_mean)/Y_std
 Y_std=Y_std.to(device)
 #load the data to batches. Do not send those to device yet to save space
-bset=[128,256,512,1024,2048]
-batch_size=bset[bnum]
+
+batch_size=256
 trainset    = TensorDataset(X_train, y_train)
 validset    = TensorDataset(X_validation,y_validation)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
@@ -187,7 +185,7 @@ for n in range(n_epoch):
         loss1,index=loss1.sort()#[:int(-0.02*batch_size)]
         #print(loss1)
         loss1=loss1[:int(-0.04*batch_size)]
-        extra=torch.diag(diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(diff[index[int(-0.04*batch_size):].numpy()]))/70
+        extra=torch.sqrt(torch.diag(diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(diff[index[int(-0.04*batch_size):].numpy()])))/np.sqrt(camb_ell_range)
         loss1=torch.cat((loss1,extra))
         loss=torch.mean(loss1)
         #print(loss)
@@ -214,7 +212,7 @@ for n in range(n_epoch):
             loss1,index=loss1.sort()#[:int(-0.02*batch_size)]
             #print(loss1)
             loss1=loss1[:int(-0.04*batch_size)]
-            extra=torch.diag(v_diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(v_diff[index[int(-0.04*batch_size):].numpy()]))/70
+            extra=torch.sqrt(torch.diag(v_diff[index[int(-0.04*batch_size):].numpy()]@ torch.t(v_diff[index[int(-0.04*batch_size):].numpy()])))/np.sqrt(camb_ell_range)
             loss1=torch.cat((loss1,extra))
             loss_vali=torch.mean(loss1)
             losses.append(loss_vali.cpu().detach().numpy())
