@@ -3,9 +3,7 @@ import torch.nn as nn
 import numpy as np
 import sys, os
 from torch.utils.data import Dataset, DataLoader, TensorDataset
-if "-f" in sys.argv:
-    idx = sys.argv.index('-f')
-bnum= int(sys.argv[idx+1])
+
 '''
 N_thread=10
 
