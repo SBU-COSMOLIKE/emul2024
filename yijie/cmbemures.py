@@ -75,7 +75,7 @@ class ResMLP(nn.Module):
 
     def __init__(self, input_dim, output_dim, int_dim, N_layer):
 
-        super(MLP, self).__init__()
+        super(ResMLP, self).__init__()
 
         modules=[]
 
@@ -91,7 +91,7 @@ class ResMLP(nn.Module):
             # Why the Affine function?
             #   R: this is for the Neuro-network to learn how to normalize the data between layers
             modules.append(Affine())
-            modules.append(nn.ResBlock(int_dim, int_dim))
+            modules.append(ResBlock(int_dim, int_dim))
             #modules.append(nn.Tanh())
         
         # Def: the transformation from the internal dimension to the output dimension of the
@@ -100,14 +100,13 @@ class ResMLP(nn.Module):
         
         # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
         # This function stacks up layers in the modules-list in sequence to create the whole model
-        self.mlp =nn.Sequential(*modules)#
+        self.resmlp =nn.Sequential(*modules)#
 
     def forward(self, x):
         #x is a cosmological parameter set you feed in the model
-        out = self.mlp(x)
+        out = self.resmlp(x)
 
         return out
-
 
 #Set up the Covariance matrix
 
