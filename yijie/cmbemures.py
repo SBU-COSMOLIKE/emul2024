@@ -96,6 +96,7 @@ class ResMLP(nn.Module):
         
         # Def: the transformation from the internal dimension to the output dimension of the
         #      data vector we intend to emulate
+        modules.append(nn.Tanh())
         modules.append(nn.Linear(int_dim, output_dim))
         
         # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
