@@ -89,8 +89,7 @@ class ResMLP(nn.Module):
         for n in range(N_layer):
             # Def: This is what we defined as a pure MLP block
             # Why the Affine function?
-            #   R: this is for the Neuro-network to learn how to normalize the data between layers
-            modules.append(Affine())
+            #   R: this is for the Neuro-network to learn how to normalize the data between layer
             modules.append(ResBlock(int_dim, int_dim))
             #modules.append(nn.Tanh())
         
