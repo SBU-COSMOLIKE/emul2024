@@ -2,15 +2,16 @@ import numpy as np
 import scipy
 import scipy.linalg
 from scipy import integrate
-
+#the equations of this code come from https://iopscience.iop.org/article/10.1086/303928/pdf
 def par_to_a(par):
     #omega_b=par[0]
-    omega_0=par[0]+par[1]
+    omega_0=par[0]+par[1] #omega_0=
     a1=0.0396*omega_0**(-0.248)*(1+13.6*omega_0**(0.638))
     a2=1480*omega_0**(-0.0606)/(1+10.2*omega_0**(0.553))
     a3=1.03*omega_0**(0.0335)
     a4=-0.0473*omega_0**(-0.0639)
     return np.array([a1,a2,a3,a4])
+
 
 def par_to_r_theta(par):
     omega_b=par[0]
@@ -18,15 +19,14 @@ def par_to_r_theta(par):
     c=3e5
     H0=par[2]
     h=H0/100
-    a_eq=(4.17e-5)/omega_0
+    a_eq=(4.17e-5)/omega_0*(2.726/2.728)**4
     b1=0.0783*omega_b**(-0.238)/(1+39.5*omega_b**(0.763))
     b2=0.56/(1+21.1*omega_b**(1.81))
-    a_star=1/(1+1048*(1+0.00124*omega_b**(-0.738))*(1+b1*omega_0**b2))
-    eta_0=2*(omega_0*10000)**(-0.5)*(np.sqrt(1+a_eq)-np.sqrt(a_eq))*(1-0.0841*np.log(omega_0/h**2))
-    eta_star=2*(omega_0*10000)**(-0.5)*(np.sqrt(a_star+a_eq)-a_eq)
-    #print(eta_0*c)
-    return c*(eta_0-eta_star)
-
+    a_star=1/(1+1048*(1+0.00124*omega_b**(-0.738))*(1+b1*(omega_0**b2)))
+    integrand=lambda x:1/H0/np.sqrt(omega_0/h**2*x**(-3)+(1-omega_0/h**2)+2.47e-5/h**2*x**(-4))/x**2
+    eta_0=integrate.quad(integrand, 0,1)[0]#2*(omega_0*10000)**(-0.5)*(np.sqrt(1+a_eq)-np.sqrt(a_eq))*(1-0.0841*np.log(omega_0/h**2))
+    eta_star=integrate.quad(integrand,0, a_star)[0]#2*(omega_0*10000)**(-0.5)*(np.sqrt(a_star+a_eq)-np.sqrt(a_eq))
+    return (eta_0-eta_star)*c
 def par_to_lD_m(par):
     omega_b=par[0]
     omega_0=par[0]+par[1]
@@ -49,13 +49,11 @@ def par_to_lr(par):
     #c=3e5
     H0=par[2]
     h=H0/100
-    a_eq=(4.17e-5)/omega_0
-    b1=0.0783*omega_b**(-0.238)/(1+39.5*omega_b**(0.763))
-    b2=0.56/(1+21.1*omega_b**(1.81))
-    #a_star=1/(1+1048*(1+0.00124*omega_b**(-0.738))*(1+b1*omega_0**b2))
+    a_eq=(4.17e-5)/omega_0*(2.726/2.728)**4
+
     eta_0=2*(omega_0*10000)**(-0.5)*(np.sqrt(1+a_eq)-np.sqrt(a_eq))*(1-0.0841*np.log(omega_0/h**2))
     eta_r=2*(omega_0*10000)**(-0.5)*(np.sqrt(1/11+a_eq)-np.sqrt(a_eq)) #picked z=10 for reionizatoin
-    #eta_star=2*(omega_0*10000)**(-0.5)*(np.sqrt(a_star+a_eq)-a_eq)
+
     return (eta_0-eta_r)/eta_r
 
 
@@ -73,8 +71,12 @@ def par_to_P_l(ell,par):
     rho_nu=7/8*3.046*(4/11)**(4/3)
     rho_gamma=1
     f_nu=rho_nu/(rho_nu+rho_gamma)
-    R_star=1#5e-10*1100
     omega_b=par[0]
+    omega_0=par[0]+par[1]
+    b1=0.0783*omega_b**(-0.238)/(1+39.5*omega_b**(0.763))
+    b2=0.56/(1+21.1*omega_b**(1.81))
+    a_star=1/(1+1048*(1+0.00124*omega_b**(-0.738))*(1+b1*(omega_0**b2)))
+    R_star=omega_b*30000*a_star
     omega_0=par[0]+par[1]
     c=3e5
     H0=par[2]
@@ -88,13 +90,11 @@ def par_to_P_l(ell,par):
     return A*np.exp(-1.4*l_eq/ell)+1
 
 def par_to_rescale(par,camb_ell_min,camb_ell_max):
-	ell=np.arange(camb_ell_min,camb_ell_max,1)
-
-	A_s=np.exp(par[5])#ignoring 10^10
-
-	rescale=A_s*par_to_D_l(ell,par)*par_to_Rl2(ell,par)*par_to_P_l(ell,par)
-
-	return rescale
+    ell=np.arange(camb_ell_min,camb_ell_max,1)
+    A_s=np.exp(par[5])
+    tau=par[3]
+    rescale=A_s/np.exp(2*tau)*(par_to_D_l(ell,par))**2*par_to_Rl2(ell,par)*par_to_P_l(ell,par)
+    return rescale
 
 def par_tot_to_rescale(partot,camb_ell_min,camb_ell_max):
 
