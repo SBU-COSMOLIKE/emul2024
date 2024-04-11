@@ -92,7 +92,7 @@ class CNNMLP(nn.Module):
             #   R: this is for the Neuro-network to learn how to normalize the data between layer
             modules.append(nn.Conv1d(in_channels=int_dim, out_channels=int_dim, kernel_size=5))
             modules.append(nn.Tanh())
-            modules.append(nn.MaxPool1d(kernel_size=2, stride=2))
+            #modules.append(nn.MaxPool1d(kernel_size=2, stride=2))
             modules.append(ResBlock(int_dim, int_dim))
             #modules.append(nn.Tanh())
         
@@ -103,11 +103,11 @@ class CNNMLP(nn.Module):
         
         # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
         # This function stacks up layers in the modules-list in sequence to create the whole model
-        self.resmlp =nn.Sequential(*modules)#
+        self.cnnmlp =nn.Sequential(*modules)#
 
     def forward(self, x):
         #x is a cosmological parameter set you feed in the model
-        out = self.resmlp(x)
+        out = self.cnnmlp(x)
 
         return out
 
@@ -179,7 +179,7 @@ n_epoch=900#for trial test purpose
 intdim=4
 Nlayer=4
 
-model = ResMLP(input_dim=input_size,output_dim=out_size,int_dim=intdim,N_layer=Nlayer)
+model = CNNMLP(input_dim=input_size,output_dim=out_size,int_dim=intdim,N_layer=Nlayer)
 optimizer = torch.optim.Adam(model.parameters(),lr=0.001,weight_decay=0.001)
 
 model = nn.DataParallel(model)
@@ -251,7 +251,7 @@ for n in range(n_epoch):
 
 
 
-PATH = "./trainedemu5000resnet/chiTTAstauresnetwarmup"#rename as drop0 afterward
+PATH = "./trainedemu5000cnn/chiTTAstaucnn"#rename as drop0 afterward
 torch.save(model.state_dict(), PATH+'.pt')
 extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
 np.save(PATH+'.npy',extrainfo)
