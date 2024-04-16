@@ -21,7 +21,7 @@ def chebytransform(n,f):
 	#f: the function that we are approximating
 	
 
-	coef=dct(f)/(n+1) #normalization
+	coef=dct(f,type=1)/(n) #normalization
 	coef[0]/=2 #a_0 requires another 1/2 for normalization
 
 
