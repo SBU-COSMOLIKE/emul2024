@@ -18,3 +18,5 @@ lr scheduler: 1e-3 to 1e-8
 1mil training points
 
 rescale As e^(2tau)
+
+in the gutted box
