@@ -1,1 +1,18 @@
-dont read me
+This is the code for producing the plots for
+1. C_l comparison of camb and emulator
+2. delta C_l/cosmic variance
+3. cumulative chi^2
+
+for the MLP model that has:
+
+N_layer=4
+
+int_dim=512*512
+
+no weight decay
+
+lr scheduler: 1e-3 to 1e-8
+
+1mil training points
+
+rescale As e^(2tau)
