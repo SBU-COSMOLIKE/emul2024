@@ -20,8 +20,8 @@ testing_samples      = []
 testing_data_vectors = []
 
 # You can change the box size here to get different span ranges
-# For each sample, sample[0]=omega_bh^2,sample[1]=omega_ch^2,sample[2]=H0,sample[3]=tau, sample[4]=n_s, 
-# sample[5]=log(A_s*10^10)
+# For each sample, sample[0]=omega_bh^2,sample[1]=omega_ch^2,sample[2]=H0, 
+# sample[3]=tau, sample[4]=n_s, sample[5]=log(A_s*10^10)
 for ind in range(len(test_samples)):
     samp = test_samples[ind]
     dv   = test_data_vectors[ind]
