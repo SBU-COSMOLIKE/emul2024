@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import scipy
 import scipy.linalg
 import rescaling
-
+matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
 camb_ell_min          = 2#30
 camb_ell_max          = 5000
