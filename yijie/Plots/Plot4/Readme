@@ -15,7 +15,7 @@ no weight decay
 
 lr scheduler: 1e-3 to 1e-8
 
-1mil training points
+0.1mil training points
 
 rescale damping tails
 
