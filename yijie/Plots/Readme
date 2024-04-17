@@ -1,5 +1,1 @@
-These are the files to generate plots for 
-  1. Distribution of Original C_l for some number of cosmologies
-  2. Distribution of C_l/A_s*e^(2tau) for some number of cosmologies
-  3. Distribution of C_l rescaled with analytical damping tails for some number of cosmologies
-You can change the sample box size according to the comments in the python code.
+
