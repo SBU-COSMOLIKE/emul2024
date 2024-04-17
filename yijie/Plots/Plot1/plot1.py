@@ -39,7 +39,7 @@ for i in range(len(testing_samples)):
 plt.xscale('log')
 plt.yscale('log')
 plt.ylabel(r'$C_{\ell}$')
-plt.xlabel(r'$\ell')
+plt.xlabel(r'$\ell$')
 #plt.legend()
 #plt.ylim(1e-2,7e5) Please change the ylim according to your need
 plt.title('original')
@@ -54,7 +54,7 @@ plt.yscale('log')
 #plt.ylim(1e-1,2e5) Please change the ylim according to your need
 plt.title('divide by A_s, multiply by exp(2tau)')
 plt.ylabel(r'$C_{\ell}^{rescale}$')
-plt.xlabel(r'$\ell')
+plt.xlabel(r'$\ell$')
 plt.savefig("rescaledAstau.pdf", format="pdf", bbox_inches="tight")
 plt.clf()
 
@@ -67,7 +67,7 @@ for i in range(len(testing_samples)):
 plt.xscale('log')
 plt.yscale('log')
 plt.ylabel(r'$C_{\ell}^{rescale}$')
-plt.xlabel(r'$\ell')
+plt.xlabel(r'$\ell$')
 #plt.legend()
 #plt.ylim(1e-1,2e5) Please change the ylim according to your need
 plt.title('divide by A_s, multiply by exp(2tau), take out damping from reionization and damping tail, taking out potential envelope')
