@@ -4,7 +4,7 @@ import numpy as np
 from scipy.fft import fft, dct,dst
 from numpy.polynomial import chebyshev as Chev
 from scipy.interpolate import interp1d
-matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+matplotlib.use('TKAgg')
 
 
 n  = 500 #number of Chebyshev points that you can change
