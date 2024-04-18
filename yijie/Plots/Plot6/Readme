@@ -1,7 +1,7 @@
 ### Decompress cosvarinvTT.rar first
 
 These are files for creating plots for
-  1. comparison between camb output and Chebyshev approximation
+  1. comparison between camb output and Chebyshev approximation of C_ell on ell=2-5000
   2. cumulative chi^2 of the approximation
 
 You can change 'n': number of Chebyshev points to get different precisions. I demonstrated with 300 and 500 points
