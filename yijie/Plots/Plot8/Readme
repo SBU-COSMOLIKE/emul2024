@@ -11,7 +11,7 @@ N_layer=4
 
 int_dim=512*512
 
-weight decay=0001
+weight decay=0.001
 
 lr scheduler: 1e-3 to 1e-8
 
