@@ -1,5 +1,7 @@
 Here are some of the plots files for Yijie's work on 
 Plot1: damping tail spans
-Plot2-5: results for rescaling (1) As e^2tau (2) damping tails on gutted box
+Plot2-5: MLP results for rescaling (1) As e^2tau (2) damping tails on gutted box
 Plot6: Chebyshev Decomposition
 Plot7: results for rescaling As e^2tau on full box
+Plot8: MLP results for rescaling (1) As e^2tau (2) damping tails on full box
+Plot9: ResMLP results for rescaling (1) As e^2tau (2) damping tails on full box
