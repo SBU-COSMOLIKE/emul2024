@@ -1,0 +1,20 @@
+### Decompress cosvarinvTT.rar first
+
+This is the code for producing the plots for
+1. C_l comparison of camb and emulator
+2. delta C_l/cosmic variance
+3. cumulative chi^2
+
+for the MLP model that has:
+
+N_layer=4
+
+int_dim=512*512
+
+weight decay=0001
+
+lr scheduler: 1e-3 to 1e-8
+
+3mil training points
+
+rescale A_s and exp(2tau)
