@@ -70,12 +70,26 @@ class ResBlock(nn.Module):
 
         return o2
 
+class CNNBlock(nn.Module):
+    def __init__(self, in_size, out_size):
+        super(CNNBlock, self).__init__()
+        
+        self.cnn=nn.Conv1d(in_channels=1, out_channels=1, kernel_size=5)
+
+    def forward(self, x):
+        x=torch.reshape(x,(256,1,512))
+
+        o1 = self.cnn(x)
+        o2 = torch.reshape(x,(256,512))
+
+        return o2
+
 
 class CNNMLP(nn.Module):
 
     def __init__(self, input_dim, output_dim, int_dim, N_layer):
 
-        super(ResMLP, self).__init__()
+        super(CNNMLP, self).__init__()
 
         modules=[]
 
@@ -90,8 +104,8 @@ class CNNMLP(nn.Module):
             # Def: This is what we defined as a pure MLP block
             # Why the Affine function?
             #   R: this is for the Neuro-network to learn how to normalize the data between layer
-            modules.append(nn.Conv1d(in_channels=int_dim, out_channels=int_dim, kernel_size=5))
-            modules.append(nn.Tanh())
+            modules.append(CNNBlock(int_dim, int_dim))
+            #modules.append(nn.Tanh())
             #modules.append(nn.MaxPool1d(kernel_size=2, stride=2))
             modules.append(ResBlock(int_dim, int_dim))
             #modules.append(nn.Tanh())
@@ -141,10 +155,10 @@ for i in range(len(validation_data_vectors)):
 out_size=1*len(train_data_vectors[0])
 #assign training and validation sets
 
-train_samples=torch.Tensor(train_samples)#.to(device)
-train_data_vectors=torch.Tensor(train_data_vectors)#.to(device)
-validation_samples=torch.Tensor(validation_samples)#.to(device)
-validation_data_vectors=torch.Tensor(validation_data_vectors)#.to(device)
+train_samples=torch.from_numpy(train_samples.astype('float32'))#.to(device)
+train_data_vectors=torch.from_numpy(train_data_vectors)#.to(device)
+validation_samples=torch.from_numpy(validation_samples.astype('float32'))#.to(device)
+validation_data_vectors=torch.from_numpy(validation_data_vectors)#.to(device)
 
 #normalizing samples and data vectors to mean 0, std 1
 X_mean=torch.Tensor(train_samples.mean(axis=0, keepdims=True))
