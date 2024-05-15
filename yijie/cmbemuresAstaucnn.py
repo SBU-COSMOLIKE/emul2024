@@ -65,8 +65,8 @@ class ResBlock(nn.Module):
     def forward(self, x):
         xskip = self.skip(x)
 
-        o1 = self.layer1(self.act1(self.norm1(x))) / np.sqrt(10)
-        o2 = self.layer2(self.act2(self.norm2(o1))) / np.sqrt(10) + xskip
+        o1 = self.act1(self.layer1(self.norm1(x)))
+        o2 = self.act2(self.layer2(self.norm2(o1))) + xskip
 
         return o2
 
@@ -74,13 +74,13 @@ class CNNBlock(nn.Module):
     def __init__(self, in_size, out_size):
         super(CNNBlock, self).__init__()
         
-        self.cnn=nn.Conv1d(in_channels=1, out_channels=1, kernel_size=5)
+        self.cnn=nn.Conv1d(in_channels=16, out_channels=8, kernel_size=5)
+        self.pool=nn.MaxPool1d(kernel_size=5, stride=4)
 
     def forward(self, x):
-        x=torch.reshape(x,(256,1,512))
 
         o1 = self.cnn(x)
-        o2 = torch.reshape(x,(256,512))
+        o2 = self.pool(o1)
 
         return o2
 
@@ -92,97 +92,115 @@ class CNNMLP(nn.Module):
         super(CNNMLP, self).__init__()
 
         modules=[]
-
+        self.outdim=output_dim
         # Def: we will set the internal dimension as multiple of 128 (reason: just simplicity)
         int_dim = int_dim * 128
-
+        self.norm = Affine()
         # Def: we will only change the dimension of the datavector using linear transformations  
-        modules.append(nn.Linear(input_dim, int_dim))
+        self.input_layer = nn.Linear(input_dim, int_dim)
         
         # Def: by design, a pure block has the input and output dimension to be the same
-        for n in range(N_layer):
-            # Def: This is what we defined as a pure MLP block
-            # Why the Affine function?
-            #   R: this is for the Neuro-network to learn how to normalize the data between layer
-            modules.append(CNNBlock(int_dim, int_dim))
-            #modules.append(nn.Tanh())
-            #modules.append(nn.MaxPool1d(kernel_size=2, stride=2))
-            modules.append(ResBlock(int_dim, int_dim))
-            #modules.append(nn.Tanh())
+        self.Res1 = ResBlock(int_dim, int_dim)
+
         
         # Def: the transformation from the internal dimension to the output dimension of the
         #      data vector we intend to emulate
-        modules.append(nn.Tanh())
-        modules.append(nn.Linear(int_dim, output_dim))
-        
+        self.Act = nn.Tanh()
+        self.CNN = CNNBlock(int_dim,int_dim)
+
         # NN.SEQUENTIAL is a PYTHORCH function DEFINED AT: https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html
         # This function stacks up layers in the modules-list in sequence to create the whole model
-        self.cnnmlp =nn.Sequential(*modules)#
-
     def forward(self, x):
         #x is a cosmological parameter set you feed in the model
-        out = self.cnnmlp(x)
-
+        x = self.input_layer(x)
+        x = self.Res1(x)
+        x = self.Act(x)
+        x = self.Res1(x)
+        x = self.Act(x)
+        l = len(x)
+        w = len(x[0])
+        n = 64
+        c = 16
+        self.trans1 = nn.Linear(in_features = w,out_features = n*c).to(device)
+        x = self.trans1(x).view (-1, c, n)
+        x = self.CNN(x)
+        n_new = len(x[0,0])
+        c_new = len(x[0])
+        x = x.view(l,n_new*c_new)#.to(device)
+        self.Res2 = ResBlock(n_new*c_new, n_new*c_new).to(device)
+        x = self.Res2(x)
+        x = self.Act(x)
+        #x = self.Res2(x)
+        #x = self.Act(x)
+        self.out_layer = nn.Linear(n_new*c_new, self.outdim).to(device)
+        out = self.out_layer(x)
+        out = self.norm(out)
+        #print(out.size())
         return out
 
 
 #Set up the Covariance matrix
 
 
-covinv=np.load('YZ_samples/LHS/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]*4/np.exp(4*0.06)
+
+covinv=np.load('extra/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]*4/np.exp(4*0.06)
 covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
 
 #load in data
-train_samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)# This is actually a latin hypercube sampling of 1mil points
-validation_samples=np.load('YZ_samples/Uniform/input/cosuni_acc_10.npy',allow_pickle=True)
+train_samples=np.load('/home/grads/extra_data/yijie/YZ_samples/cos3milsamps.npy',allow_pickle=True)#.astype('float32')# This is actually a latin hypercube sampling of 1mil points
+validation_samples=np.load('/home/grads/data/yijie/mltrial/parametersamples/cosuni_acc_10.npy',allow_pickle=True)#.astype('float32')
+lhc_len=len(train_samples)
 input_size=len(train_samples[0])
-train_data_vectors=np.load('YZ_samples/LHS/coslhc_acc_output_TT.npy',allow_pickle=True)[:,:camb_ell_range]
 
 
 
-validation_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_10_output_acc_vali.npy',allow_pickle=True)[:,:camb_ell_range]
-uniset=[20,30,40,50,60,70,80,90,100]
-for i in uniset:
-    samp_new=np.load('YZ_samples/Uniform/input/cosuni_acc_'+str(i)+'.npy',allow_pickle=True)
-    dv_new=np.load('YZ_samples/Uniform/output/cosuni_'+str(i)+'_output_acc.npy',allow_pickle=True)[:,:camb_ell_range]
-    train_samples=np.vstack((train_samples,samp_new))
-    train_data_vectors=np.vstack((train_data_vectors,dv_new))
-for i in range(len(train_data_vectors)):
-    train_data_vectors[i]=train_data_vectors[i]/(np.exp(train_samples[i,5]))*(np.exp(2*train_samples[i,3]))
+
+validation_data_vectors=np.load('/home/grads/extra_data/yijie/YZ_samples/Uniform/output/cosuni_10_output_acc_vali.npy',allow_pickle=True)[:,:camb_ell_range]
+
+#train_data_vectors=torch.zeros((lhc_len,camb_ell_range),dtype=torch.float32)
+y_train=torch.from_numpy(np.load('/home/grads/yijie/cos3mildvs.npy',allow_pickle=True,mmap_mode='r+')[:,:camb_ell_range])
+
+
 for i in range(len(validation_data_vectors)):
     validation_data_vectors[i]=validation_data_vectors[i]/(np.exp(validation_samples[i,5]))*(np.exp(2*validation_samples[i,3]))
 
-out_size=1*len(train_data_vectors[0])
+out_size=4998#1*len(train_data_vectors[0])
 #assign training and validation sets
 
-train_samples=torch.from_numpy(train_samples.astype('float32'))#.to(device)
-train_data_vectors=torch.from_numpy(train_data_vectors)#.to(device)
-validation_samples=torch.from_numpy(validation_samples.astype('float32'))#.to(device)
+train_samples=torch.from_numpy(train_samples)#.to(device)
+#train_data_vectors=torch.from_numpy(train_data_vectors)#.to(device)
+validation_samples=torch.from_numpy(validation_samples)#.to(device)
 validation_data_vectors=torch.from_numpy(validation_data_vectors)#.to(device)
 
+extrainfo=np.load("/home/grads/data/yijie/mltrial/extra/3milextra.npy",allow_pickle=True)
+X_mean=extrainfo.item()['X_mean']#.to(device)
+X_std=extrainfo.item()['X_std']#.to(device)
+Y_mean=extrainfo.item()['Y_mean']#.to(device)
+Y_std=extrainfo.item()['Y_std'].to('cpu')#.to(device)
+
 #normalizing samples and data vectors to mean 0, std 1
-X_mean=torch.Tensor(train_samples.mean(axis=0, keepdims=True))
-X_std  = torch.Tensor(train_samples.std(axis=0, keepdims=True))
-Y_mean=torch.Tensor(train_data_vectors.mean(axis=0, keepdims=True))
-Y_std=torch.Tensor(train_data_vectors.std(axis=0, keepdims=True))
+
 X_train=(train_samples-X_mean)/X_std
 X_train[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
-y_train=(train_data_vectors-Y_mean)/Y_std
+#y_train=(train_data_vectors-Y_mean)/Y_std
 
-
+#print(train_data_vectors.dtype)
+#print(X_train.dtype)
 X_validation=(validation_samples-X_mean)/X_std
 X_validation[:,6:]=0 # we didn't vary the last 3 parameters: mnu, w, and wa in this test, so setting them to 0 automatically after normalization
 y_validation=(validation_data_vectors-Y_mean)/Y_std
 Y_std=Y_std.to(device)
-
+X_train=X_train.to(torch.float32)
+X_validation=X_validation.to(torch.float32)
 #load the data to batches. Do not send those to device yet to save space
-del train_data_vectors
+#del train_data_vectors
 del validation_data_vectors
-batch_size=256
+batch_size=512
 trainset    = TensorDataset(X_train, y_train)
 validset    = TensorDataset(X_validation,y_validation)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
 validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
+
 
 #Set up the model and optimizer
 
@@ -191,7 +209,7 @@ validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_las
 n_epoch=900#for trial test purpose
 
 intdim=4
-Nlayer=4
+Nlayer=2
 
 model = CNNMLP(input_dim=input_size,output_dim=out_size,int_dim=intdim,N_layer=Nlayer)
 optimizer = torch.optim.Adam(model.parameters(),lr=0.001,weight_decay=0.001)
@@ -265,10 +283,10 @@ for n in range(n_epoch):
 
 
 
-PATH = "./trainedemu5000cnn/chiTTAstaucnn"#rename as drop0 afterward
+PATH = "./trainedemu5000cnn/chiTTAstaucnn3mil"#rename as drop0 afterward
 torch.save(model.state_dict(), PATH+'.pt')
-extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
-np.save(PATH+'.npy',extrainfo)
+#extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std}
+#np.save(PATH+'.npy',extrainfo)
 np.save(PATH+'losstrain.npy',losses_train)
 np.save(PATH+'lossvali.npy',losses_vali)
 np.save(PATH+'losstrainmed.npy',losses_train_med)
