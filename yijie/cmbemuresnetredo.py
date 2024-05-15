@@ -63,41 +63,13 @@ class Affine(nn.Module):
         return x * self.gain + self.bias
 
 
-class ResBlock(nn.Module):
+class ResMLP(nn.Module):
     # Fixed version of Resblock, with the input first going through a linear layer
     # and then an activation function, and then repeat. Add identity at the end.
-    def __init__(self, in_size, out_size):
-        super(ResBlock, self).__init__()
-        
-        if in_size != out_size: 
-            self.skip = nn.Linear(in_size, out_size, bias=False)
-        else:
-            self.skip = nn.Identity()
-
-        self.layer1 = nn.Linear(in_size, out_size)
-        self.layer2 = nn.Linear(out_size, out_size)
-
-        self.norm1 = Affine()
-        self.norm2 = Affine()
-
-        self.act1 = Supact(in_size)#nn.Tanh()#nn.ReLU()#
-        self.act2 = Supact(in_size)#nn.Tanh()#nn.ReLU()#
-
-    def forward(self, x):
-        xskip = self.skip(x)
-
-        o1 = self.act1(self.layer1(self.norm1(x)))
-        o2 = self.act2(self.layer2(self.norm2(o1))) + xskip
-
-        return o2
-
-
-class ResMLP(nn.Module):
-
     def __init__(self, input_dim, output_dim, int_dim, N_layer):
 
         super(ResMLP, self).__init__()
-
+        
         modules=[]
 
         # Def: we will set the internal dimension as multiple of 128 (reason: just simplicity)
@@ -112,7 +84,7 @@ class ResMLP(nn.Module):
             # Why the Affine function?
             #   R: this is for the Neuro-network to learn how to normalize the data between layer
             modules.append(ResBlock(int_dim, int_dim))
-            modules.append(Supact(int_dim))#need an extra activation after each ResBlock as stated in the original paper of ResNet
+            modules.append(nn.Tanh()) # need an extra activation after each ResBlock as stated in the original paper: https://arxiv.org/abs/1512.03385
         
         # Def: the transformation from the internal dimension to the output dimension of the
         #      data vector we intend to emulate
