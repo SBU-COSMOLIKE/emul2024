@@ -41,9 +41,9 @@ class Supact(nn.Module):
         
         self.gamma = nn.Parameter(torch.ones(in_size))
         self.beta = nn.Parameter(torch.zeros(in_size))
-
+        self.m = nn.Sigmoid()
     def forward(self, x):
-        inv = (1+torch.exp(-1*torch.mul(self.beta,x))).pow_(-1)
+        inv = self.m(torch.mul(self.beta,x))
         fac = 1-self.gamma
         mult = self.gamma + torch.mul(inv,fac)
         return torch.mul(mult,x)
