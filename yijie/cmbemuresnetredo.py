@@ -62,6 +62,31 @@ class Affine(nn.Module):
 
         return x * self.gain + self.bias
 
+class ResBlock(nn.Module):
+    def __init__(self, in_size, out_size):
+        super(ResBlock, self).__init__()
+        
+        if in_size != out_size: 
+            self.skip = nn.Linear(in_size, out_size, bias=False) # we don't consider this. remove?
+        else:
+            self.skip = nn.Identity()
+
+        self.layer1 = nn.Linear(in_size, out_size)
+        self.layer2 = nn.Linear(out_size, out_size)
+
+        self.norm1 = Affine()
+        self.norm2 = Affine()
+
+        self.act1 = Supact(in_size)#nn.Tanh()#nn.ReLU()#
+        self.act2 = Supact(in_size)#nn.Tanh()#nn.ReLU()#
+
+    def forward(self, x):
+        xskip = self.skip(x)
+
+        o1 = self.act1(self.layer1(self.norm1(x)))
+        o2 = self.act2(self.layer2(self.norm2(o1))) + xskip
+
+        return o2
 
 class ResMLP(nn.Module):
     # Fixed version of Resblock, with the input first going through a linear layer
