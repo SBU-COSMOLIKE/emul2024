@@ -108,11 +108,11 @@ class Better_Transformer(nn.Module):
         self.n_partitions = n_partitions
         self.act          = Supact(in_size)#nn.Tanh()#nn.ReLU()#
         self.norm         = Affine()#torch.nn.BatchNorm1d(in_size)
-
+        self.nc=n_partitions
         # set up weight matrices and bias vectors
-        weights = torch.zeros((n_partitions,self.int_dim,self.int_dim))
+        weights = torch.zeros((self.int_dim,self.int_dim))
         self.weights = nn.Parameter(weights) # turn the weights tensor into trainable weights
-        bias = torch.Tensor(in_size)
+        bias = torch.Tensor(self.int_dim)
         self.bias = nn.Parameter(bias) # turn bias tensor into trainable weights
 
         # initialize weights and biases
@@ -123,11 +123,14 @@ class Better_Transformer(nn.Module):
         nn.init.uniform_(self.bias, -bound, bound) # bias weights init
 
     def forward(self,x):
-        mat = torch.block_diag(*self.weights) # how can I do this on init rather than on each forward pass?
+        #self.weights=self.weights.unsqueeze(0).repeat(self.nc,1,1)
+        #self.bias=self.bias.repeat(self.nc)
+        #mat = torch.block_diag(*self.weights) # how can I do this on init rather than on each forward pass?
         x_norm = self.norm(x)
-        #_x = x_norm.reshape(x_norm.shape[0],self.n_partitions,self.int_dim) # reshape into channels
-        o = self.act(torch.matmul(x_norm,mat)+self.bias)
-        return o+x
+        _x = x_norm.reshape(x_norm.shape[0],self.n_partitions,self.int_dim) # reshape into channels
+
+        o = (torch.matmul(_x,self.weights[None,None,:])+self.bias[None,None,:]).reshape(x_norm.shape[0],x_norm.shape[1])
+        return self.act(o)+x
 
 class ResBlock(nn.Module):
     def __init__(self, in_size, out_size):
