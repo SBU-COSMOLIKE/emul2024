@@ -30,7 +30,7 @@ device
 # In[3]:
 
 
-torch.manual_seed(13)
+torch.manual_seed(10)
 
 
 # # Load and normalize data
@@ -154,8 +154,10 @@ class ResBlock(nn.Module):
         self.norm1 = Affine()
         self.norm2 = Affine()
 
-        self.act1 = nn.ReLU()
-        self.act2 = nn.ReLU()
+        # self.act1 = nn.ReLU()
+        # self.act2 = nn.ReLU()
+        self.act1 = nn.Tanh()
+        self.act2 = nn.Tanh()
         
     def forward(self,x):
         xskip = self.skip(x)
@@ -184,7 +186,8 @@ class ResMLP(nn.Module):
         # self.modules = nn.ModuleList()
         
         # Activation function to use
-        self.act = nn.ReLU()
+        # self.act = nn.ReLU()
+        self.act = nn.Tanh()
         
         # self.block = ResBlock(input_dim, input_dim)
         # Write a for loop that controls how many ResBlocks I include in my full network
@@ -217,7 +220,7 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(3,500,2)
+model = ResMLP(3,500,4)
 model.to(device)
 epochs = 50
 train_losses = []
@@ -287,7 +290,7 @@ sigma2_values_tensor = torch.from_numpy(sigma2_values).float().to(device)
 
 model_parameters = filter(lambda p: p.requires_grad, model.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
-params
+print('the total number of trainable model parameters are', params)
 
 
 # In[13]:
@@ -296,26 +299,19 @@ params
 for data, labels in train_loader:
     data, labels = data.to(device), labels.to(device)
     outputs = model(data)
-    print(outputs.shape)
+    print('model outputs shape', outputs.shape)
     # print(criterion(outputs,labels))
     break
-
-
-# In[14]:
-
-
-# ## Printing the initialization values of weights and biases
-# def print_initial_parameters(model):
-#     for name, param in model.named_parameters():
-#         if param.requires_grad:
-#             print(f"Parameter: {name}, Initial value: {param.data}")
-
-# print_initial_parameters(model)
 
 
 # - Note: When I use the validation data during the training of my model, I want to set model.eval() such that the NN does not use this data to train the model. I also want to set torch.no_grad(), so that pytorch does not store the outputs of the activation functions -- therefore saving RAM.
 
 # In[15]:
+train_x_mean = train_x_mean.to(device)
+train_x_std = train_x_std.to(device)
+
+train_y_mean = train_y_mean.to(device)
+train_y_std = train_y_std.to(device)
 
 
 for epoch in range(epochs):
@@ -326,24 +322,16 @@ for epoch in range(epochs):
         data, labels = data.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(data)  
+    
         ## I will use -log(Likelihood) as my loss function using as std the sigma that is given in 0810.1744 equation A2
-        loss1 =  0.5 * (labels - outputs) ** 2 / sigma2_values_tensor
+        # loss1 =  0.5 * (labels - outputs) ** 2 / sigma2_values_tensor
+        diff = (labels - outputs) * train_y_std
+        loss1 = 0.5 * diff ** 2 / sigma2_values_tensor
         loss = torch.mean(loss1)   
         loss.backward()
         optimizer.step()
         train_loss += loss.item() * data.size(0)
         
-        # # Check gradients for NaNs
-        # nan_found = False
-        # for name, param in model.named_parameters():
-        #     if param.grad is not None:
-        #         if torch.isnan(param.grad).any():
-        #             print(f"NaNs found in gradients of {name} during training")
-        #             nan_found = True
-        #             break
-        
-        # if nan_found:
-        #     continue
     train_loss /= len(train_dataset)
     train_losses.append(train_loss)
 
@@ -355,14 +343,16 @@ for epoch in range(epochs):
             data, labels = data.to(device), labels.to(device)
             outputs = model(data)
             ## I will use -log(Likelihood) as my loss function
-            loss1 =  0.5 * (labels - outputs) ** 2 / sigma2_values_tensor
+            # loss1 =  0.5 * (labels - outputs) ** 2 / sigma2_values_tensor
+            diff = (labels - outputs) * train_y_std
+            loss1 = 0.5 * diff ** 2 / sigma2_values_tensor
             loss = torch.mean(loss1) 
             val_loss += loss.item() * data.size(0)
         val_loss /= len(val_dataset)
         val_losses.append(val_loss)
 
     if (epoch + 1) % 10 == 0:
-        print(f'Epoch [{epoch+1}/{epochs}], Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
+        print(f'Epoch [{epoch+1}/{epochs}], Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
 
 
 # In[16]:
@@ -370,7 +360,7 @@ for epoch in range(epochs):
 
 # Plot the training and validation losses
 plt.figure(figsize=(8, 6))
-#plt.plot(np.linspace(0.5, len(train_losses) + 1), train_losses, marker='.', label='Training Loss Shifted')
+plt.plot(np.linspace(0.5, len(train_losses) + 1, epochs), train_losses, marker='.', label='Training Loss Shifted')
 plt.plot(range(1, len(train_losses) + 1), train_losses, marker='.', label='Training Loss')
 plt.plot(range(1, len(val_losses) + 1), val_losses, marker='.', label='Validation Loss')
 plt.xlabel('Epoch')
@@ -386,18 +376,21 @@ plt.show()
 model.eval()
 with torch.no_grad():
     for data, labels in test_loader:
-        print(data.shape, labels.shape)
-        print(labels.shape[0])
+        print('data.shape', data.shape, 'labels.shape', labels.shape)
+        print('labels.shape[0]', labels.shape[0])
         break
 
 
 # # Testing
 
 # In[18]:
+
+
 train_y_mean = train_y_mean.to(device)
 train_y_std = train_y_std.to(device)
 model.eval()
 zBinsFisher = np.linspace(0.0334, 1.7, 500)
+
 with torch.no_grad():
     for data, labels in test_loader:
         data, labels = data.to(device), labels.to(device)
@@ -406,30 +399,13 @@ with torch.no_grad():
         labels_rescaled = labels * train_y_std + train_y_mean
         plt.figure(figsize=(8, 6))
         plt.plot(zBinsFisher, labels_rescaled[0,:].cpu().numpy(), marker='.', label='Expected')
-        plt.plot(zBinsFisher, predictions_rescaled[0,:].cpu().numpy(), marker='.', label='Predicted')
+        plt.plot(zBinsFisher, predictions_rescaled[0,:].cpu().numpy(), label='Predicted')
         plt.xlabel('z')
         plt.ylabel('logdL')
         plt.title(r'Expected Vs predicted $logd_L$ scaled back to original')
         plt.legend()
         plt.show()
         break
-
-
-with torch.no_grad():
-    for data, labels in test_loader:
-        data, labels = data.to(device), labels.to(device)
-        predictions = model(data)
-        plt.figure(figsize=(8, 6))
-        plt.plot(zBinsFisher, labels[0,:].cpu().numpy(), marker='.', label='Expected')
-        plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted')
-        plt.xlabel('z')
-        plt.ylabel('logdL')
-        plt.title(r'Expected Vs predicted $logd_L$ rescaled for training')
-        plt.legend()
-        plt.show()
-        break
-        
-        
         
 
 
@@ -448,53 +424,36 @@ with torch.no_grad():
             plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted %d' %i)
         plt.xlabel('z')
         plt.ylabel('logdL')
-        plt.title('Predicted')
+        plt.title('Predicted NOT rescaled back to original scale')
         #plt.legend()
         plt.show()
         break
 
 
-# In[20]:
+# In[25]:
 
 
 with torch.no_grad():
     for data, labels in test_loader:
         plt.figure(figsize=(8, 6))
         for i in range(labels.shape[0]):
-            plt.plot(zBinsFisher, labels[i,:].cpu().numpy(), marker='.', label='Expected i = %d' % i )
+            labels = labels.to(device)
+            labels_rescaled = labels * train_y_std + train_y_mean
+            plt.plot(zBinsFisher, labels_rescaled[i,:].cpu().numpy(),  label='Expected i = %d' % i )
 
         plt.xlabel('z')
         plt.ylabel('logdL')
-        plt.title(r'Expected $logd_L$')
+        plt.title(r'Expected $logd_L$ rescaled back to original')
         #plt.legend()
         plt.show()
         break
 
 
-# - I can use MSE to assess the goodness of fit for the output of my model compared with the labels of the test data.
-
-# In[21]:
-
-
-## Testing
-model.eval()
-test_loss = 0
-with torch.no_grad():
-    for data, labels in test_loader:
-        data, labels = data.to(device), labels.to(device)
-        predictions = model(data)
-        loss = nn.MSELoss()(predictions, labels)
-        test_loss += loss.item() 
-        
-mse_loss = test_loss / len(val_dataset)
-print(f"Mean Squared Error: {mse_loss:.4f}")
-
-
-# - I can use $\chi^2$ test to check the goodness of fit for the outputs of my model. The problem with this is that some entries of my labels are zero.
+# - I will use the $\chi^2$  to check the goodness of fit for the outputs of my model. I will use the same error as my training loss ie equation A2 from 0810.1744.
 #   
-#   $\chi^2 = \sum \frac{\left( observed - expected \right)^2}{expected}$
+#   $\chi^2 = \sum \frac{\left( observed - expected \right)^2}{\sigma^2}$
 
-# In[22]:
+# In[26]:
 
 
 model.eval()
@@ -503,58 +462,15 @@ with torch.no_grad():
     for data, labels in test_loader:
         data, labels = data.to(device), labels.to(device)
         pred = model(data)
-        res = pow((pred - labels), 2)
-        if torch.count_nonzero(labels) != labels.numel():
-            continue
-        
-        chi_sq += torch.sum(torch.div(res, labels))
+        diff = (pred - labels) * train_y_std
+        res = pow(diff, 2)
+        chi_sq += torch.sum(torch.div(res, sigma2_values_tensor))
         #print(chi_sq.shape)
      
 chi_sq = chi_sq.item()
-print(f"Chi-squared statistic: {chi_sq:.4f}")
+print(f"Chi-squared statistic: {chi_sq:.2f}")
     
 
-
-# In[23]:
-
-
-model.eval()
-chi_sq = 0
-total_samples = 0
-
-with torch.no_grad():
-    for data, labels in test_loader:
-        data, labels = data.to(device), labels.to(device)
-        pred = model(data)
-        res = (pred - labels) ** 2
-        
-        # Check if any expected value (label) is zero and skip if true
-        if torch.count_nonzero(labels) != labels.numel():
-            continue
-        
-        chi_sq += torch.sum(res / labels)
-        total_samples += data.size(0)
-     
-chi_sq = chi_sq.item()
-
-# Degrees of freedom: number of elements per sample - 1, multiplied by the number of valid samples
-num_elements_per_sample = labels.size(1)
-df = (num_elements_per_sample - 1) * total_samples
-
-# Calculate p-value
-p_value = 1 - chi2.cdf(chi_sq, df)
-
-print(f"Chi-squared statistic: {chi_sq:.4f}")
-print(f"P-value: {p_value:.4f}")
-
-# Interpretation
-if p_value > 0.05:
-    print("The model's fit is considered good (fail to reject the null hypothesis).")
-else:
-    print("The model's fit is considered poor (reject the null hypothesis).")
-
-
-# In[ ]:
 
 
 
