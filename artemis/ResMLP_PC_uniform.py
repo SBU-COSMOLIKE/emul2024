@@ -38,8 +38,11 @@ torch.manual_seed(10)
 # In[4]:
 
 
-cosmo_data = h5py.File('uniform_cosmo_data_1PC.h5', 'r')
-logdL_data = h5py.File('uniform_lodL_data_1PC.h5', 'r')
+# cosmo_data = h5py.File('/home/venus/cosmo_temp/uniform_cosmo_data_1PC.h5', 'r')
+# logdL_data = h5py.File('/home/venus/cosmo_temp/uniform_lodL_data_1PC.h5', 'r')
+
+cosmo_data = h5py.File('/home/venus/cosmo_temp/uniform_cosmo_data_2PC.h5', 'r')
+logdL_data = h5py.File('/home/venus/cosmo_temp/uniform_lodL_data_2PC.h5', 'r')
 
 cosmo_data_tensor = torch.from_numpy(cosmo_data['data'][:]).float()
 logdL_data_tensor = torch.from_numpy(logdL_data['processed_data'][:]).float()
@@ -154,6 +157,7 @@ class ResBlock(nn.Module):
         self.norm1 = Affine()
         self.norm2 = Affine()
 
+        
         # self.act1 = nn.ReLU()
         # self.act2 = nn.ReLU()
         self.act1 = nn.Tanh()
@@ -188,7 +192,7 @@ class ResMLP(nn.Module):
         # Activation function to use
         # self.act = nn.ReLU()
         self.act = nn.Tanh()
-        
+
         # self.block = ResBlock(input_dim, input_dim)
         # Write a for loop that controls how many ResBlocks I include in my full network
         # for i in range(block_nums):
@@ -220,9 +224,9 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(3,500,4)
+model = ResMLP(4,500,4)
 model.to(device)
-epochs = 50
+epochs = 30
 train_losses = []
 val_losses = []
 # criterion = nn.MSELoss()
@@ -385,7 +389,7 @@ with torch.no_grad():
 
 # In[18]:
 
-
+## Plot expected vs predicted rescaled back to the original scale
 train_y_mean = train_y_mean.to(device)
 train_y_std = train_y_std.to(device)
 model.eval()
@@ -411,7 +415,7 @@ with torch.no_grad():
 
 # In[19]:
 
-
+## Predicted vs expected NOT rescaled back to original scale
 model.eval()
 zBinsFisher = np.linspace(0.0334, 1.7, 500)
 with torch.no_grad():
@@ -420,12 +424,14 @@ with torch.no_grad():
         predictions = model(data)
         
         plt.figure(figsize=(8, 6))
-        for i in range(labels.shape[0]):
-            plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted %d' %i)
+        # for i in range(labels.shape[0]):
+        #     plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted %d' %i)
+        plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted')
+        plt.plot(zBinsFisher, labels[0,:].cpu().numpy(), marker = '.', label='Expected')
         plt.xlabel('z')
         plt.ylabel('logdL')
-        plt.title('Predicted NOT rescaled back to original scale')
-        #plt.legend()
+        plt.title('Predicted vs Expected NOT rescaled back to original scale')
+        plt.legend()
         plt.show()
         break
 
