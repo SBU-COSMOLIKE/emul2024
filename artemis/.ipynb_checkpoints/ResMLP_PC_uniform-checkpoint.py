@@ -163,6 +163,7 @@ class ResBlock(nn.Module):
         self.act1 = nn.Tanh()
         self.act2 = nn.Tanh()
         
+        
     def forward(self,x):
         xskip = self.skip(x)
         # x = self.act1(self.norm1(self.linear1(x)))
@@ -192,7 +193,8 @@ class ResMLP(nn.Module):
         # Activation function to use
         # self.act = nn.ReLU()
         self.act = nn.Tanh()
-
+       
+        
         # self.block = ResBlock(input_dim, input_dim)
         # Write a for loop that controls how many ResBlocks I include in my full network
         # for i in range(block_nums):
@@ -224,9 +226,9 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(4,500,4)
+model = ResMLP(4,500,8)
 model.to(device)
-epochs = 30
+epochs = 50
 train_losses = []
 val_losses = []
 # criterion = nn.MSELoss()
@@ -369,6 +371,7 @@ plt.plot(range(1, len(train_losses) + 1), train_losses, marker='.', label='Train
 plt.plot(range(1, len(val_losses) + 1), val_losses, marker='.', label='Validation Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
+plt.yscale('log')
 plt.title('Training and Validation Loss')
 plt.legend()
 plt.show()
@@ -426,8 +429,9 @@ with torch.no_grad():
         plt.figure(figsize=(8, 6))
         # for i in range(labels.shape[0]):
         #     plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted %d' %i)
-        plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted')
+        
         plt.plot(zBinsFisher, labels[0,:].cpu().numpy(), marker = '.', label='Expected')
+        plt.plot(zBinsFisher, predictions[0,:].cpu().numpy(), marker='.', label='Predicted')
         plt.xlabel('z')
         plt.ylabel('logdL')
         plt.title('Predicted vs Expected NOT rescaled back to original scale')
@@ -464,6 +468,7 @@ with torch.no_grad():
 
 model.eval()
 chi_sq = 0
+tot_points = 0
 with torch.no_grad():
     for data, labels in test_loader:
         data, labels = data.to(device), labels.to(device)
@@ -471,12 +476,12 @@ with torch.no_grad():
         diff = (pred - labels) * train_y_std
         res = pow(diff, 2)
         chi_sq += torch.sum(torch.div(res, sigma2_values_tensor))
-        #print(chi_sq.shape)
+        tot_points += labels.size(0)
+       
+       
      
-chi_sq = chi_sq.item()
-print(f"Chi-squared statistic: {chi_sq:.2f}")
-    
-
+chi_sq_mean = chi_sq.item() / tot_points
+print(f"Chi-squared statistic: {chi_sq_mean:.4f}") 
 
 
 
