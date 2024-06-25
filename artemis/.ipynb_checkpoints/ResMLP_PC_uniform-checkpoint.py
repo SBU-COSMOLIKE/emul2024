@@ -484,5 +484,8 @@ chi_sq_mean = chi_sq.item() / tot_points
 print(f"Chi-squared statistic: {chi_sq_mean:.4f}") 
 
 
+### SAVE THE MODEL 
+torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_3_500_4_50epochs.pth')
+
 
 
