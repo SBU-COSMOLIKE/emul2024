@@ -30,7 +30,7 @@ camb_ell_range        = camb_ell_max  - camb_ell_min
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-extrainfo=np.load("3milextrasea.npy",allow_pickle=True)
+extrainfo=np.load("/home/grads/data/yijie/mltrial/extra/3milextrasea.npy",allow_pickle=True)
 X_mean=torch.Tensor(extrainfo.item()['X_mean'])#.to(device)
 X_std=torch.Tensor(extrainfo.item()['X_std'])#.to(device)
 Y_mean=torch.Tensor(extrainfo.item()['Y_mean']).to(device)
@@ -203,28 +203,18 @@ class ResMLP(nn.Module):
 
 
 
-covinv=np.load('YZ_samples/LHS/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]#*4/np.exp(4*0.06)
+covinv=np.load('/home/grads/data/yijie/mltrial/extra/cosvarinvTT.npy',allow_pickle=True)[:camb_ell_range,:camb_ell_range]#*4/np.exp(4*0.06)
 covinv=torch.Tensor(covinv).to(device) #This is inverse of the Covariance Matrix
-transform_matrix=np.load('YZ_samples/PCAcomp/PCAmat_3mil.npy',allow_pickle=True)[:96]
+transform_matrix=np.load('/home/grads/data/yijie/mltrial/extra/PCAmat_3mil.npy',allow_pickle=True)[:96]
 transform_matrix = torch.Tensor(transform_matrix).to(device)
 #load in data
-train_samples=np.load('YZ_samples/LHS/coslhc_acc.npy',allow_pickle=True)#.astype('float32')# This is actually a latin hypercube sampling of 1mil points
+train_samples=np.load('/home/grads/data/yijie/mltrial/pcadv/PCA_6mil_samps.npy',allow_pickle=True)[0:600000:2]#.astype('float32')# This is actually a latin hypercube sampling of 1mil points
+validation_samples=np.load('/home/grads/data/yijie/mltrial/parametersamples/cosuni_acc_10.npy',allow_pickle=True)
 
 input_size=len(train_samples[0])
+train_data_vectors=np.load('/home/grads/data/yijie/mltrial/pcadv/PCA6mil96.npy',allow_pickle=True)[0:600000:2]
 
-uniset=[20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200]
-for i in uniset:
-    samp_new=np.load('YZ_samples/Uniform/input/cosuni_acc_'+str(i)+'.npy',allow_pickle=True)
-    #dv_new=np.load('YZ_samples/Uniform/output/cosuni_'+str(i)+'_output_acc.npy',allow_pickle=True)[:,:camb_ell_range]
-    train_samples=np.vstack((train_samples,samp_new))
-    #train_data_vectors=np.vstack((train_data_vectors,dv_new))#.astype('float32')# This is actually a latin hypercube sampling of 1mil points
-train_samples=train_samples[0:600000:2]
-
-validation_samples=np.load('YZ_samples/Uniform/input/cosuni_acc_10.npy',allow_pickle=True)
-
-train_data_vectors=np.load('YZ_samples/PCA6mil96.npy',allow_pickle=True)[0:600000:2]
-
-validation_data_vectors=np.load('YZ_samples/Uniform/output/cosuni_10_output_acc_vali.npy',allow_pickle=True)[:,:camb_ell_range]
+validation_data_vectors=np.load('/home/grads/extra_data/yijie/YZ_samples/Uniform/output/cosuni_10_output_acc_vali.npy',allow_pickle=True)[:,:camb_ell_range]
 #train_data_vectors=torch.zeros((lhc_len,camb_ell_range),dtype=torch.float32)
 
 for i in range(len(validation_data_vectors)):
@@ -268,6 +258,12 @@ trainset    = TensorDataset(X_train, train_data_vectors)
 validset    = TensorDataset(X_validation,validation_data_vectors)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
 validloader = DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=1)
+
+
+resnet=ResMLP(9,96,4,3).to(device)
+resnet=nn.DataParallel(resnet)
+resnet.load_state_dict(torch.load('./trainedemu5000resnetunscale96/chiTTAstauresunscalenowd03milpcai4l3.pt',map_location=device))
+resnet.eval()
 class TRF(nn.Module):
 
     def __init__(self, input_dim, output_dim, int_dim, N_channels,std,mean,mat):
@@ -283,7 +279,7 @@ class TRF(nn.Module):
         
         
         n_channels = N_channels
-        int_dim_trf = 5024
+        int_dim_trf = 5120
 
         
         modules.append(Better_Attention(int_dim_trf, n_channels))
@@ -298,19 +294,16 @@ class TRF(nn.Module):
         modules.append(nn.Linear(int_dim_trf, output_dim))
         modules.append(Affine())
 
-        resnet=ResMLP(9,96,4,3).to(device)
-        self.resnet=nn.DataParallel(resnet)
-        self.resnet.load_state_dict(torch.load('./trainedemu5000resnetunscale96/chiTTAstauresunscalenowd03milpcai4l3.pt',map_location=device))
         self.trf =nn.Sequential(*modules)#
         self.std=std
         self.mean=mean
         self.mat=mat
-        self.pad=torch.zeros(512,13)
+        self.pad=torch.zeros(512,61).to(device)
 
     def forward(self, x):
         #x is a cosmological parameter set you feed in the model
-        pc=self.resnet(x)
-        unormalpc=pc*self.std+self.mean
+        
+        unormalpc=x*self.std+self.mean
         cl=torch.matmul(unormalpc, self.mat)
         cl=torch.hstack((self.pad,cl))
         cl=torch.hstack((cl,self.pad))
@@ -323,7 +316,7 @@ class TRF(nn.Module):
 #training
 
 n_epoch=900#for trial test purpose
-cset=[8,16,32]
+cset=[64]
 
 intdim=8
 for nc in cset:
@@ -353,9 +346,11 @@ for nc in cset:
         losses=[]
         for i, data in enumerate(trainloader):
             model.train()
+
             X = data[0].to(device)# send to device one by one
+            X_c = resnet(X)
             Y_batch = data[1].to(device)# send to device one by one
-            Y_pred  = model(X).to(device)
+            Y_pred  = model(X_c).to(device)
             As=torch.exp(X[:,5]*X_std[0,5]+X_mean[0,5])
             exptau=torch.exp(2*X[:,3]*X_std[0,3]+2*X_mean[0,3])
 
@@ -383,8 +378,9 @@ for nc in cset:
             losses = []
             for i, data in enumerate(validloader):
                 X_v       = data[0].to(device)
+                X_v_c = resnet(X_v)
                 Y_v_batch = data[1].to(device)
-                Y_v_pred = model(X_v).to(device)
+                Y_v_pred = model(X_v_c).to(device)
                 As=torch.exp(X_v[:,5]*X_std[0,5]+X_mean[0,5])
                 exptau=torch.exp(2*X_v[:,3]*X_std[0,3]+2*X_mean[0,3])
                 Y_v_pred_back = Y_v_pred*Y_std+Y_mean
@@ -414,7 +410,7 @@ for nc in cset:
 
 
 
-    PATH = "./trainedemu5000trfunscale96/chiTTAstautrf03milpcai40962resc"+str(nc)#rename as drop0 afterward
+    PATH = "./trainedemu5000trffreeze/chiTTAstautrf03milpcai5120freezec"+str(nc)#rename as drop0 afterward
     torch.save(model.state_dict(), PATH+'.pt')
     extrainfo={'X_mean':X_mean,'X_std':X_std,'Y_mean':Y_mean,'Y_std':Y_std,'Y_mean2':Y_mean2,'Y_std2':Y_std2}
     np.save(PATH+'.npy',extrainfo)
