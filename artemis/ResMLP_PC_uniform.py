@@ -11,7 +11,6 @@ import h5py
 import numpy as np 
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import transforms
-from tqdm import tqdm
 import matplotlib.pyplot as plt
 from scipy.stats import chi2
 from scipy.interpolate import interp1d
@@ -24,7 +23,7 @@ from scipy.interpolate import interp1d
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device
+print(device)
 
 
 # In[3]:
@@ -41,8 +40,9 @@ torch.manual_seed(10)
 # cosmo_data = h5py.File('/home/venus/cosmo_temp/uniform_cosmo_data_1PC.h5', 'r')
 # logdL_data = h5py.File('/home/venus/cosmo_temp/uniform_lodL_data_1PC.h5', 'r')
 
-cosmo_data = h5py.File('/home/venus/cosmo_temp/uniform_cosmo_data_2PC.h5', 'r')
-logdL_data = h5py.File('/home/venus/cosmo_temp/uniform_lodL_data_2PC.h5', 'r')
+cosmo_data = h5py.File('/gpfs/scratch/argiannakopo/uniform_cosmo_data_15PC.h5', 'r')
+logdL_data = h5py.File('/gpfs/scratch/argiannakopo/uniform_lodL_data_15PC.h5', 'r')
+
 
 cosmo_data_tensor = torch.from_numpy(cosmo_data['data'][:]).float()
 logdL_data_tensor = torch.from_numpy(logdL_data['processed_data'][:]).float()
@@ -110,7 +110,7 @@ test_dataset_normalized = TensorDataset(norm_test_x, norm_test_y)
 
 # Create data loaders for each of the new normalized datasets
 # Split in batches
-batch_size = 32
+batch_size = 64
 train_loader = DataLoader(train_dataset_normalized, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(val_dataset_normalized, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_dataset_normalized, batch_size=batch_size, shuffle=False)
@@ -226,9 +226,9 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(4,500,8)
+model = ResMLP(17,500,8)
 model.to(device)
-epochs = 50
+epochs = 100
 train_losses = []
 val_losses = []
 # criterion = nn.MSELoss()
@@ -374,6 +374,7 @@ plt.ylabel('Loss')
 plt.yscale('log')
 plt.title('Training and Validation Loss')
 plt.legend()
+plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/train_vs_val_loss_15PCs.pdf', format="pdf", bbox_inches="tight")
 plt.show()
 
 
@@ -383,8 +384,8 @@ plt.show()
 model.eval()
 with torch.no_grad():
     for data, labels in test_loader:
-        print('data.shape', data.shape, 'labels.shape', labels.shape)
-        print('labels.shape[0]', labels.shape[0])
+        print('test data.shape', data.shape, 'test labels.shape', labels.shape)
+        print('test labels.shape[0]', labels.shape[0])
         break
 
 
@@ -411,6 +412,7 @@ with torch.no_grad():
         plt.ylabel('logdL')
         plt.title(r'Expected Vs predicted $logd_L$ scaled back to original')
         plt.legend()
+        plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/expected_vs_pred_15PCs.pdf', format="pdf", bbox_inches="tight")
         plt.show()
         break
         
@@ -436,6 +438,7 @@ with torch.no_grad():
         plt.ylabel('logdL')
         plt.title('Predicted vs Expected NOT rescaled back to original scale')
         plt.legend()
+        plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/exp_vs_pred_not_rescaled_15PCs.pdf', format="pdf", bbox_inches="tight")
         plt.show()
         break
 
@@ -443,20 +446,20 @@ with torch.no_grad():
 # In[25]:
 
 
-with torch.no_grad():
-    for data, labels in test_loader:
-        plt.figure(figsize=(8, 6))
-        for i in range(labels.shape[0]):
-            labels = labels.to(device)
-            labels_rescaled = labels * train_y_std + train_y_mean
-            plt.plot(zBinsFisher, labels_rescaled[i,:].cpu().numpy(),  label='Expected i = %d' % i )
+# with torch.no_grad():
+#     for data, labels in test_loader:
+#         plt.figure(figsize=(8, 6))
+#         for i in range(labels.shape[0]):
+#             labels = labels.to(device)
+#             labels_rescaled = labels * train_y_std + train_y_mean
+#             plt.plot(zBinsFisher, labels_rescaled[i,:].cpu().numpy(),  label='Expected i = %d' % i )
 
-        plt.xlabel('z')
-        plt.ylabel('logdL')
-        plt.title(r'Expected $logd_L$ rescaled back to original')
-        #plt.legend()
-        plt.show()
-        break
+#         plt.xlabel('z')
+#         plt.ylabel('logdL')
+#         plt.title(r'Expected $logd_L$ rescaled back to original')
+#         #plt.legend()
+#         plt.show()
+#         break
 
 
 # - I will use the $\chi^2$  to check the goodness of fit for the outputs of my model. I will use the same error as my training loss ie equation A2 from 0810.1744.
@@ -478,14 +481,13 @@ with torch.no_grad():
         chi_sq += torch.sum(torch.div(res, sigma2_values_tensor))
         tot_points += labels.size(0)
        
-       
-     
+        
 chi_sq_mean = chi_sq.item() / tot_points
 print(f"Chi-squared statistic: {chi_sq_mean:.4f}") 
 
 
 ### SAVE THE MODEL 
-torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_3_500_4_50epochs.pth')
+torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_17_500_8_100epochs.pth')
 
 
 
