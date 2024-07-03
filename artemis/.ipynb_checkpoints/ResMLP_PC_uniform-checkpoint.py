@@ -12,6 +12,7 @@ import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import transforms
 import matplotlib.pyplot as plt
+matplotlib.use('Agg') # Switch to a backend that does not require a display.
 from scipy.stats import chi2
 from scipy.interpolate import interp1d
 
@@ -375,7 +376,7 @@ plt.yscale('log')
 plt.title('Training and Validation Loss')
 plt.legend()
 plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/train_vs_val_loss_15PCs.pdf', format="pdf", bbox_inches="tight")
-plt.show()
+
 
 
 # In[17]:
@@ -413,7 +414,7 @@ with torch.no_grad():
         plt.title(r'Expected Vs predicted $logd_L$ scaled back to original')
         plt.legend()
         plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/expected_vs_pred_15PCs.pdf', format="pdf", bbox_inches="tight")
-        plt.show()
+        
         break
         
 
@@ -439,7 +440,7 @@ with torch.no_grad():
         plt.title('Predicted vs Expected NOT rescaled back to original scale')
         plt.legend()
         plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/exp_vs_pred_not_rescaled_15PCs.pdf', format="pdf", bbox_inches="tight")
-        plt.show()
+        
         break
 
 

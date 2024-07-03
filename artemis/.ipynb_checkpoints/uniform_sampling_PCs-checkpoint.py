@@ -31,9 +31,10 @@ cmag = 149896229 / 500
 
 
 # Redshifts for the bins that we chose when we did the eigevector analysis with Fisher.
+Nx = 500
 zzmin = 0.03
 zzmax = 1.7
-zbins = zzmin + np.linspace(zzmin, zzmax, 500)
+zBinsFisher = [zzmin + i * (zzmax - zzmin) / Nx for i in range(1, Nx + 1)]
 
 
 # - Import the eigenfunctions from the mathematica output file.
@@ -45,9 +46,8 @@ zbins = zzmin + np.linspace(zzmin, zzmax, 500)
 # eigenvectors = [[0] * 850 for _ in range(500)]
 # eigenvectors = np.array(eigenvectors)
 
-eigenvectors = np.loadtxt("/gpfs/home/argiannakopo/cosmo_temp/eigenvectorsFisherTot.dat")
-# eigenvectors = np.loadtxt("/mnt/c/Users/asgia/Desktop/cosmo_stuff/eigenvectorsFisherTot.dat")
-eigenvectors.shape
+eigenvectors = np.loadtxt("/gpfs/home/argiannakopo/cosmo_stuff/eigenvectorsFisherTot.dat")
+print('eigenvectors.shape',eigenvectors.shape)
 
 
 # In[5]:
@@ -67,53 +67,28 @@ def w(alphas,eigenvectors):
     
 
 
-# In[6]:
+# **IMPORTANT NOTE**
+# - **Here I have assumed that I am interested in $z \in [0.03,1.7]$ and defined 500 bins in this range**
 
+def aux(z1, z2, w1):
+    return ( (1 + z2) / (1 + z1) ) ** (3*(1 + w1))
 
-# # Test variables used to make sure things work. They have no meaning.
-# testbins = np.linspace(0.01,1,5)
-# testalp = np.linspace(0.01, 0.1, 5)
-# testvecs = np.array([[1] * 5 for _ in range(5)])
-# testsigma2 = np.linspace(0.1,0.2,5)
-
-
-# In[7]:
-
-
-# def omegade(zbins, alphas, eigenvectors):
-
-#     base = (1 + zbins)
-#     power = 3 * ( 1 + w(alphas,eigenvectors))
-
-#     return base ** power
-
-## Different definition to avoid overflow errors
 def omegade(zbins, alphas, eigenvectors):
-    base = (1 + zbins)
-    power = 3 * (1 + w(alphas, eigenvectors))
+    w_values = w(alphas, eigenvectors)
+    zbins = np.insert(zbins, 0, 0.03)
+    N = len(w_values)
+    if len(zbins) != N + 1 :
+        raise ValueError("Number of zbins is not correct")
+        
+    cumulative_product = []
+    current_product = 1
+        
+    for i in range(N):
+        current_product *= aux(zbins[i], zbins[i+1], w_values[i])
+        cumulative_product.append(current_product)
+        
+    return np.array(cumulative_product)
     
-    # Calculate the exponent using logarithm to avoid overflow
-    log_result = np.log(base) * power
-
-    # Take the exponent of the result to get the final value
-    return np.exp(log_result)
-    
-    
-
-
-# In[8]:
-
-
-# ## Different definition to avoid overflow errors
-# def omegade(zbins, alphas, eigenvectors):
-#     base = (1 + zbins)
-#     power = 3 * (1 + w(alphas, eigenvectors))
-    
-#     # Calculate the exponent using logarithm to avoid overflow
-#     log_result = np.log(base) * power
-
-#     # Take the exponent of the result to get the final value
-#     return np.exp(log_result)
 
 
 # - The way I defined things, I have an issue with luminosity distance $d_L$ since my bins from summing the eigenvectors go from $z_{min}$ to $z_{max}$ with $z_{min} \neq 0$. However, in the definition of the luminosity distance I have an integral from 0 to z. To deal with this part of $z < z_{min}$, I will evaluate a constant factor with $w_{DE} = w_{fid} = -1$ and add this to each element of the array within the zbins that I care about.
@@ -232,16 +207,10 @@ alpha_max = ( 1 / (2*Nz)) * ( weight1 * first_sum + weight2 * second_sum)
 alpha_min = ( 1 / (2*Nz)) * ( weight1 * first_sum - weight2 * second_sum)
 
 
-# In[16]:
-
-
-alpha_max[0], alpha_min[0]
-
 
 # - I will sample only for $\alpha_1$, $\Omega_m$ and $\Omega_m h^2$. I will set to zero the rest of the PCs. Also, note that based on the calculation in the previous cell, I know the min and max values that are allowed for $\alpha_1$.
 # - The following should create two .h5 files that contain the cosmological parameters and the respective values for logdL, so that I can use them for training my ResMLP.
 
-# In[31]:
 
 
 ## Define the limits of the sampling region -- ([alphas], Omega_m, Omega_mh^2) 
