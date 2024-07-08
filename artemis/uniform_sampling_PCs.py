@@ -227,12 +227,12 @@ high_lim = np.concatenate([alpha_max[:50],[0.34, 0.234226]])
 ## Will save the uniform sampled cosmological parameters in an hdf5 file
 with h5py.File('/gpfs/scratch/argiannakopo/uniform_cosmo_data_50PC.h5', 'w') as f:
     # Will save things in chunks so that it is easier to load and read later
-    dataset = f.create_dataset('data', shape=(0, 17), maxshape=(None, 17), dtype=np.float64, chunks=True)
+    dataset = f.create_dataset('data', shape=(0, 52), maxshape=(None, 52), dtype=np.float64, chunks=True)
 
     chunk_size = 100000  # Number of rows per chunk
     for start in range(0, 100000, chunk_size):
         end = min(start + chunk_size, 100000)
-        chunk = np.random.uniform(low=low_lim, high=high_lim, size=(end - start, 17))
+        chunk = np.random.uniform(low=low_lim, high=high_lim, size=(end - start, 52))
         dataset.resize((dataset.shape[0] + chunk.shape[0]), axis=0)
         dataset[-chunk.shape[0]:] = chunk
 
