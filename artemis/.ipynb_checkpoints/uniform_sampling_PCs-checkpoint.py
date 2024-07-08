@@ -215,8 +215,8 @@ alpha_min = ( 1 / (2*Nz)) * ( weight1 * first_sum - weight2 * second_sum)
 
 ## Define the limits of the sampling region -- ([alphas], Omega_m, Omega_mh^2) 
 ## The fiducial model that I am using has Omega_m = 0.24 and h = 0.73 -- Omega_m h^2 = 0.127896 
-low_lim = np.concatenate([alpha_min[:15],[0.14, 0.055566]])
-high_lim = np.concatenate([alpha_max[:15],[0.34, 0.234226]])
+low_lim = np.concatenate([alpha_min[:50],[0.14, 0.055566]])
+high_lim = np.concatenate([alpha_max[:50],[0.34, 0.234226]])
 # low_lim = [alpha_min[0], 0.14 , 0.055566]
 # high_lim = [alpha_max[0], 0.34, 0.234226]
 
@@ -225,7 +225,7 @@ high_lim = np.concatenate([alpha_max[:15],[0.34, 0.234226]])
 
 
 ## Will save the uniform sampled cosmological parameters in an hdf5 file
-with h5py.File('/gpfs/scratch/argiannakopo/uniform_cosmo_data_15PC.h5', 'w') as f:
+with h5py.File('/gpfs/scratch/argiannakopo/uniform_cosmo_data_50PC.h5', 'w') as f:
     # Will save things in chunks so that it is easier to load and read later
     dataset = f.create_dataset('data', shape=(0, 17), maxshape=(None, 17), dtype=np.float64, chunks=True)
 
@@ -241,9 +241,9 @@ with h5py.File('/gpfs/scratch/argiannakopo/uniform_cosmo_data_15PC.h5', 'w') as 
 
 
 # Input and output file names
-input_filename = '/gpfs/scratch/argiannakopo/uniform_cosmo_data_15PC.h5'
-output_filename = '/gpfs/scratch/argiannakopo/uniform_lodL_data_15PC.h5'
-zeros = [0] * (500 - 15)
+input_filename = '/gpfs/scratch/argiannakopo/uniform_cosmo_data_50PC.h5'
+output_filename = '/gpfs/scratch/argiannakopo/uniform_lodL_data_50PC.h5'
+zeros = [0] * (500 - 50)
 
 # Read the input file and process each row
 with h5py.File(input_filename, 'r') as f_in, h5py.File(output_filename, 'w') as f_out:
@@ -256,7 +256,7 @@ with h5py.File(input_filename, 'r') as f_in, h5py.File(output_filename, 'w') as 
     # Process each row and save the result
     for i in range(num_rows):
         row = dataset_in[i]
-        alps = np.concatenate([row[:15],zeros])  
+        alps = np.concatenate([row[:50],zeros])  
         processed_row = log_h0dl(zBinsFisher, alps, eigenvectors, np.sqrt(row[-1]/row[-2])*100, row[-2], 0)
         dataset_out[i] = processed_row
 
