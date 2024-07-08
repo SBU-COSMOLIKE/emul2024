@@ -228,7 +228,7 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(17,500,8)
+model = ResMLP(17,500,16)
 model.to(device)
 epochs = 100
 train_losses = []
@@ -489,7 +489,7 @@ print(f"Chi-squared statistic: {chi_sq_mean:.4f}")
 
 
 ### SAVE THE MODEL 
-torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_17_500_8_100epochs.pth')
+torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_17_500_16_100epochs.pth')
 
 
 
