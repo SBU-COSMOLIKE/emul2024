@@ -12,6 +12,7 @@ import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import transforms
 import matplotlib.pyplot as plt
+import matplotlib 
 matplotlib.use('Agg') # Switch to a backend that does not require a display.
 from scipy.stats import chi2
 from scipy.interpolate import interp1d
