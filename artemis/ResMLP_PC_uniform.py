@@ -230,7 +230,7 @@ class ResMLP(nn.Module):
 ## Training 
 model = ResMLP(17,500,16)
 model.to(device)
-epochs = 100
+epochs = 200
 train_losses = []
 val_losses = []
 # criterion = nn.MSELoss()
