@@ -136,3 +136,9 @@ class CosmologyCalculatorPC:
         """
         z_shifted = 1 + zbins[:-1]
         return z_shifted * self.comov_dist(zbins, zBinsFisher)
+
+    def logH0lum_distance(self, zbins, zBinsFisher):
+        return np.log10( (self.H0 / self.cmag) * self.lum_distance(zbins , zBinsFisher))
+
+
+        
