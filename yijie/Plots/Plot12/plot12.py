@@ -4,33 +4,30 @@ from matplotlib import pyplot as plt
 
 matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
+fig, ax1 = plt.subplots()
+
+med128=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
 
 pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
-pertail1283b=np.array([0.5168 , 0.1645, 0.0782,0.0680, 0.0567])
 
-pertail32=np.array([0.2617,0.0217,0.0176,0.0166 ,0.0161])
-pertail323b=np.array([0.2974,0.0196,0.0170,0.0164,0.0162])
+med64=np.array([0.138,0.029,0.015,0.008,0.004])
 
-pertail8=np.array([0.1462,0.0062,0.0043,0.0045,0.0045])
-pertail83b=np.array([0.1949,0.0053,0.0049,0.0048,0.0044])
+pertail64=np.array([0.3907,0.0552,0.0399,0.0315,0.0295])
+
+
+
 
 n_train=np.array([100,200,300,400,530])
 
-plt.plot(n_train,pertail8,'b-',label='T=8, 1 Block')
+ax1.plot(n_train,pertail128,'b-',label='T=128, fraction of tail')
 
-plt.plot(n_train,pertail32,'r-',label='T=32, 1 Block')
-
-plt.plot(n_train,pertail128,'g-',label='T=128, 1 Block')
-
-plt.plot(n_train,pertail83b,'b--',label='T=8, 3 Block')
-
-plt.plot(n_train,pertail323b,'r--',label='T=32, 3 Block')
-
-plt.plot(n_train,pertail1283b,'g--',label='T=128, 3 Block')
-
-plt.xlabel('Number of training points(thousands)')
-plt.ylabel(r'Fraction of points with $\chi^2>0.2$')
-
-plt.yscale('log')
-plt.legend()
-plt.savefig("fractionvsnum.pdf", format="pdf", bbox_inches="tight",dpi=150, pad_inches=0.5)
+ax1.plot(n_train,pertail64,'r-',label='T=64, fraction of tail')
+ax2 = ax1.twinx()
+ax2.plot(n_train,med128,'b--',label=r'T=128, median $\chi^2$')
+ax2.plot(n_train,med64,'r--',label=r'T=64, median $\chi^2$')
+ax1.set_xlabel('Number of training points(thousands)')
+ax1.set_ylabel(r'Fraction of points with $\chi^2>0.2$')
+ax2.set_ylabel(r'median $\chi^2$')
+ax1.set_yscale('log')
+fig.legend()
+fig.savefig("fractionvsnum.pdf", format="pdf", bbox_inches="tight",dpi=150, pad_inches=0.5)
