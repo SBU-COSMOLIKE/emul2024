@@ -40,7 +40,7 @@ plt.plot(n_train,pertail128,'b-',label='TRF 1Block, T=128')
 
 plt.plot(n_train,pertail1283b,'r-',label='TRF 3Block, T=128')
 
-plt.xlabel('Number of training points(thousands)',fontsize=18)
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=18)
 plt.ylabel(r'Fraction of points with $\chi^2>0.2$',fontsize=18)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)

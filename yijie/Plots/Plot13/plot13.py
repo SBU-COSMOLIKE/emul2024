@@ -68,4 +68,5 @@ for i in range(3):
 #cbar.ax.tick_params(labelsize=35)
 #cbar.ax.yaxis.get_offset_text().set_fontsize(25)   
 
-fig.savefig("trainvstest.pdf", format="pdf", bbox_inches="tight", dpi=200, pad_inches=0.05)
+fig.savefig("trainvstest.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+fig.savefig("trainvstest.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
