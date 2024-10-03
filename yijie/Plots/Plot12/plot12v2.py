@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
@@ -32,7 +33,7 @@ pertail64=np.array([0.3907,0.0552,0.0399,0.0315,0.0295])
 pertail64res=np.array([0.5939,0.2408,0.1725,0.1495,0.0676])
 n_train=np.array([100,200,300,400,530])
 
-#matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
 plt.figure(figsize = (3.5,3.5))
 
@@ -83,7 +84,7 @@ plt.plot(n_train,med128,
     c='blue',
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.25,
+    alpha=0.5,
     lw=3.50,
     label='_nolegend_')
 
@@ -91,7 +92,7 @@ plt.plot(n_train,med128res,
     c='blue', 
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.25,
+    alpha=0.5,
     lw=1.25,
     label='_nolegend_')
 
@@ -104,7 +105,7 @@ plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.25, 
+    alpha=0.5, 
     lw=3.50,
     label='_nolegend_')
 
@@ -113,7 +114,7 @@ plt.plot(n_train,med64res,
     c='firebrick', 
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.25,
+    alpha=0.5,
     lw=1.25,
     label='_nolegend_')
 
@@ -143,3 +144,4 @@ plt.xlim(101,499)
 plt.ylim(0.0099,1.01)
 #plt.legend()
 plt.savefig("plot12v2.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("plot12v2.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
