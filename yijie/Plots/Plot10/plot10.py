@@ -79,7 +79,7 @@ testing_sample = np.load('testsample.npy',allow_pickle=True)
 testing_data_vector = np.load('testdv.npy',allow_pickle=True)[:camb_ell_range]
 
 
-PATH = "chiTTAstaucheb2"
+PATH = "chiTTAstauchebmore2"
 extrainfo=np.load(PATH+'.npy',allow_pickle=True)
 X_mean=extrainfo.item()['X_mean'].to(device)
 X_std=extrainfo.item()['X_std'].to(device)

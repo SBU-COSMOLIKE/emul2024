@@ -7,12 +7,12 @@ from scipy.interpolate import interp1d
 matplotlib.use('TKAgg')
 
 
-n  = 500 #number of Chebyshev points that you can change
+n  = 300 #number of Chebyshev points that you can change
 tt = np.linspace(0,np.pi,n+1)
 zz = np.exp(1j*tt)
 ll = zz.real
 
-ub = 5000 #upper bound for ell
+ub = 4999 #upper bound for ell
 lb = 2    #lower bound for ell
 
 ell = (ub-lb)/2*ll+(ub+lb)/2

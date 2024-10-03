@@ -5,7 +5,24 @@ import scipy
 import scipy.linalg
 import rescaling
 matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
-
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+matplotlib.rcParams['xtick.bottom'] = True
+matplotlib.rcParams['xtick.top'] = False
+matplotlib.rcParams['ytick.right'] = False
+matplotlib.rcParams['axes.edgecolor'] = 'black'
+matplotlib.rcParams['axes.linewidth'] = '1.0'
+matplotlib.rcParams['axes.labelsize'] = 'medium'
+matplotlib.rcParams['axes.grid'] = True
+matplotlib.rcParams['grid.linewidth'] = '0.0'
+matplotlib.rcParams['grid.alpha'] = '0.18'
+matplotlib.rcParams['grid.color'] = 'lightgray'
+matplotlib.rcParams['legend.labelspacing'] = 0.77
+matplotlib.rcParams['savefig.bbox'] = 'tight'
+matplotlib.rcParams['savefig.format'] = 'pdf'
 
 camb_ell_min          = 2#30
 camb_ell_max          = 5000
@@ -36,32 +53,38 @@ testing_data_vectors = np.array(testing_data_vectors)
 
 ell = np.arange(camb_ell_min,camb_ell_max,1)
 for i in range(len(testing_samples)):
-    plt.plot(testing_data_vectors[i]*ell*(ell+1))
+    plt.plot(testing_data_vectors[i]*ell*(ell+1), lw=1.5)
 plt.xscale('log')
 plt.yscale('log')
-plt.ylabel(r'$C_{\ell}$')
-plt.xlabel(r'$\ell$')
+plt.ylabel(r'$C_{\ell}$',fontsize=18)
+plt.xlabel(r'$\ell$',fontsize=18)
 plt.ylim(1e-1,1e6)
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
 #plt.legend()
 #plt.ylim(1e-2,7e5) Please change the ylim according to your need
 #plt.title('original')
-plt.savefig("original.pdf", format="pdf", bbox_inches="tight",dpi=150, pad_inches=0.5)
+plt.savefig("original.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.05)
+plt.savefig("original.svg", format="svg", bbox_inches="tight",dpi=300, pad_inches=0.05)
 plt.clf()
 
 
 for i in range(len(testing_samples)):
-    plt.plot(testing_data_vectors[i]*ell*(ell+1)/(np.exp(testing_samples[i,5]))*np.exp(2*testing_samples[i,3]))
+    plt.plot(testing_data_vectors[i]*ell*(ell+1)/(np.exp(testing_samples[i,5]))*np.exp(2*testing_samples[i,3]),lw=1.5)
 plt.xscale('log')
 plt.yscale('log')
 plt.ylim(1e-1,1e6)
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
 #plt.ylim(1e-1,2e5) Please change the ylim according to your need
 #plt.title('divide by A_s, multiply by exp(2tau)')
-plt.ylabel(r'$C_{\ell}^{rescale}$')
-plt.xlabel(r'$\ell$')
-plt.savefig("rescaledAstau.pdf", format="pdf", bbox_inches="tight",dpi=150, pad_inches=0.5)
+plt.ylabel(r'$C_{\ell}^{rescale}$',fontsize=18)
+plt.xlabel(r'$\ell$',fontsize=18)
+plt.savefig("rescaledAstau.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.05)
+plt.savefig("rescaledAstau.svg", format="svg", bbox_inches="tight",dpi=300, pad_inches=0.05)
 plt.clf()
 
-
+"""
 rescale = rescaling.par_tot_to_rescale(testing_samples,camb_ell_min,camb_ell_max)
 
 scaled = (testing_data_vectors*ell*(ell+1)/rescale)
@@ -76,3 +99,4 @@ plt.xlabel(r'$\ell$')
 #plt.ylim(1e-1,2e5) Please change the ylim according to your need
 #plt.title('divide by A_s, multiply by exp(2tau), take out damping from reionization and damping tail, taking out potential envelope')
 plt.savefig("rescaled.pdf", format="pdf", bbox_inches="tight",dpi=150, pad_inches=0.5)
+"""
