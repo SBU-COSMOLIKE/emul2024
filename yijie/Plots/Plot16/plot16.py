@@ -37,7 +37,7 @@ plt.plot(cambtrue*ell*(ell+1),label='camb')
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel(r'$\ell$')
-plt.ylabel(r'$C_{\ell}^{TT}$')
+plt.ylabel(r'$D_{\ell}^{TT}$')
 plt.legend()
 
 plt.savefig("plot16.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
