@@ -33,7 +33,7 @@ med64sqrt=np.array([26.443,2.081,0.225,0.208,0.123])
 pertail64=np.array([.3907,0.0552,0.0399,0.0315,0.0295])
 pertail64sqrt=np.array([1,1,0.5630,0.5147,0.3011])
 n_train=np.array([100,200,300,400,530])
-#matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
 plt.figure(figsize = (3.5,3.5))
 
@@ -47,7 +47,7 @@ plt.plot(n_train,
     marker = None,
     alpha=1.0,
     lw=3.50,
-    label='$L=\sqrt{\widetilde{\chi}^2}, T=128$')
+    label='$L=\sqrt{\widetilde{\chi}^2}$')
 
 plt.plot(n_train, 
     pertail128sqrt,
@@ -55,7 +55,7 @@ plt.plot(n_train,
     marker = None,
     alpha=1.0,
     lw=2.50,
-    label='$L=\sqrt{1+2\chi^2}, T=128$')
+    label='$L=\sqrt{1+2\chi^2}$')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -66,7 +66,7 @@ plt.plot(n_train, pertail64,
     marker = None,
     alpha=1.0,
     lw=3.50,
-    label='$L=\sqrt{\widetilde{\chi}^2}, T=64$')
+    label='_nolegend_')
 
 plt.plot(n_train, 
     pertail64sqrt, 
@@ -74,7 +74,7 @@ plt.plot(n_train,
     marker = None,
     alpha=1.0,
     lw=2.50,
-    label='$L=\sqrt{1+2\chi^2}, T=64$')
+    label='_nolegend_')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -121,7 +121,7 @@ plt.plot(n_train,med64sqrt,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-fs = 8
+fs = 10
 l = plt.legend(
     fontsize = fs,
     ncol=1,
