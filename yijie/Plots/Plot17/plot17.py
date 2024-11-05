@@ -44,7 +44,7 @@ plt.figure(figsize = (3.5,3.5))
 
 plt.plot(n_train, 
     pertail128, 
-    c='black',
+    c='steelblue',
     marker = None,
     alpha=1.0,
     lw=3.50,
@@ -52,14 +52,14 @@ plt.plot(n_train,
 
 plt.plot(n_train_uni, 
     pertail128_uni, 
-    c='green',
+    c='teal',
     marker = None,
     alpha=1.0,
     lw=3.50,
     label='Uniform')
 
 plt.plot(n_train,med128,
-    c='black',
+    c='steelblue',
     linestyle=(0, (1, 1)),
     marker = None,
     alpha=0.5,
@@ -67,7 +67,7 @@ plt.plot(n_train,med128,
     label='_nolegend_')
 
 plt.plot(n_train_uni,med128_uni,
-    c='green',
+    c='teal',
     linestyle=(0, (1, 1)),
     marker = None,
     alpha=0.5,

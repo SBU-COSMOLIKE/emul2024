@@ -53,7 +53,7 @@ plt.plot(n_train,
     c='blue', 
     marker = None,
     alpha=1.0,
-    lw=2.50,
+    lw=1.50,
     label='Tanh')
 
 # ------------------------------------------------------------------
@@ -63,7 +63,7 @@ plt.plot(n_train,
 plt.plot(n_train, pertail64, 
     c='firebrick',
     marker = None,
-    alpha=1.0,
+    alpha=0.7,
     lw=3.50,
     label='_nolegend_')
 
@@ -71,8 +71,8 @@ plt.plot(n_train,
     pertail64tanh, 
     'firebrick',
     marker = None,
-    alpha=1.0,
-    lw=2.50,
+    alpha=0.7,
+    lw=1.50,
     label='_nolegend_')
 
 # ------------------------------------------------------------------
@@ -92,7 +92,7 @@ plt.plot(n_train,med128tanh,
     linestyle=(0, (1, 1)),
     marker = None,
     alpha=0.5,
-    lw=2.50,
+    lw=1.50,
     label='_nolegend_')
 
 
@@ -104,7 +104,7 @@ plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.5, 
+    alpha=0.3, 
     lw=3.50,
     label='_nolegend_')
 
@@ -113,8 +113,8 @@ plt.plot(n_train,med64tanh,
     c='firebrick', 
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.5,
-    lw=2.50,
+    alpha=0.3,
+    lw=1.50,
     label='_nolegend_')
 
 # ------------------------------------------------------------------

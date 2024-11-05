@@ -47,15 +47,15 @@ plt.plot(n_train,
     marker = None,
     alpha=1.0,
     lw=3.50,
-    label='$L=\sqrt{\widetilde{\chi}^2}$')
+    label='$L=\sqrt{\Delta\widetilde{\chi}^2}$')
 
 plt.plot(n_train, 
     pertail128sqrt,
     c='blue', 
     marker = None,
     alpha=1.0,
-    lw=2.50,
-    label='$L=\sqrt{1+2\chi^2}$')
+    lw=1.50,
+    label='$L=\sqrt{1+2\Delta\chi^2}$')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -64,7 +64,7 @@ plt.plot(n_train,
 plt.plot(n_train, pertail64, 
     c='firebrick',
     marker = None,
-    alpha=1.0,
+    alpha=0.7,
     lw=3.50,
     label='_nolegend_')
 
@@ -72,8 +72,8 @@ plt.plot(n_train,
     pertail64sqrt, 
     'firebrick',
     marker = None,
-    alpha=1.0,
-    lw=2.50,
+    alpha=0.7,
+    lw=1.50,
     label='_nolegend_')
 
 # ------------------------------------------------------------------
@@ -93,7 +93,7 @@ plt.plot(n_train,med128sqrt,
     linestyle=(0, (1, 1)),
     marker = None,
     alpha=0.5,
-    lw=2.50,
+    lw=1.50,
     label='_nolegend_')
 
 
@@ -105,7 +105,7 @@ plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.5, 
+    alpha=0.3, 
     lw=3.50,
     label='_nolegend_')
 
@@ -114,8 +114,8 @@ plt.plot(n_train,med64sqrt,
     c='firebrick', 
     linestyle=(0, (1, 1)),
     marker = None,
-    alpha=0.5,
-    lw=2.50,
+    alpha=0.3,
+    lw=1.50,
     label='_nolegend_')
 
 # ------------------------------------------------------------------
