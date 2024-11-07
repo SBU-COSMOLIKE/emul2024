@@ -44,7 +44,7 @@ plt.figure(figsize = (3.5,3.5))
 plt.plot(n_train, 
     pertail128, 
     c='blue',
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=1.0,
     lw=3.50,
     label='$L=\sqrt{\Delta\widetilde{\chi}^2}$')
@@ -52,7 +52,7 @@ plt.plot(n_train,
 plt.plot(n_train, 
     pertail128sqrt,
     c='blue', 
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=1.0,
     lw=1.50,
     label='$L=\sqrt{1+2\Delta\chi^2}$')
@@ -63,7 +63,7 @@ plt.plot(n_train,
 
 plt.plot(n_train, pertail64, 
     c='firebrick',
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.7,
     lw=3.50,
     label='_nolegend_')
@@ -71,7 +71,7 @@ plt.plot(n_train, pertail64,
 plt.plot(n_train, 
     pertail64sqrt, 
     'firebrick',
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.7,
     lw=1.50,
     label='_nolegend_')
@@ -83,7 +83,7 @@ plt.plot(n_train,
 plt.plot(n_train,med128,
     c='blue',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=0.5,
     lw=3.50,
     label='_nolegend_')
@@ -91,7 +91,7 @@ plt.plot(n_train,med128,
 plt.plot(n_train,med128sqrt,
     c='blue', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=0.5,
     lw=1.50,
     label='_nolegend_')
@@ -104,7 +104,7 @@ plt.plot(n_train,med128sqrt,
 plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.3, 
     lw=3.50,
     label='_nolegend_')
@@ -113,7 +113,7 @@ plt.plot(n_train,med64,
 plt.plot(n_train,med64sqrt,
     c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.3,
     lw=1.50,
     label='_nolegend_')
@@ -144,5 +144,5 @@ plt.xlim(101,499)
 plt.ylim(0.0099,4.9)
 #plt.legend()
 plt.savefig("rescalevssqrt.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-
 plt.savefig("rescalevssqrt.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrt.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)

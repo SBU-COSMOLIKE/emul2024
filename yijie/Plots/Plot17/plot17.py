@@ -44,35 +44,35 @@ plt.figure(figsize = (3.5,3.5))
 
 plt.plot(n_train, 
     pertail128, 
-    c='steelblue',
-    marker = None,
+    c='black',
+    marker = 'D',
     alpha=1.0,
     lw=3.50,
-    label='Gaussian')
+    label='Gaussian', markersize=5)
 
 plt.plot(n_train_uni, 
     pertail128_uni, 
-    c='teal',
-    marker = None,
+    c='orchid',
+    marker = 'D',
     alpha=1.0,
     lw=3.50,
-    label='Uniform')
+    label='Uniform', markersize=5)
 
 plt.plot(n_train,med128,
-    c='steelblue',
+    c='black',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D',
     alpha=0.5,
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 plt.plot(n_train_uni,med128_uni,
-    c='teal',
+    c='orchid',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D',
     alpha=0.5,
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 
 # ------------------------------------------------------------------
@@ -103,3 +103,4 @@ plt.ylim(0.0099,1.01)
 #plt.legend()
 plt.savefig("gaussianvsuni.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 plt.savefig("gaussianvsuni.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("gaussianvsuni.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)

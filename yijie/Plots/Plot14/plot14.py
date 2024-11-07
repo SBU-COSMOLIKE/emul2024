@@ -25,13 +25,13 @@ matplotlib.rcParams['savefig.bbox'] = 'tight'
 matplotlib.rcParams['savefig.format'] = 'pdf'
 
 
-plt.figure(figsize = (5,5))
+plt.figure(figsize = (4,4))
 tail=np.array([0.0607, 0.0295, 0.0161 ,0.0102 ,0.0045 ,0.0033 ,0.0006 ,0.0001])
 
 
 temp=np.array([128,64,32,16,8,4,2,1])
 
-plt.plot(temp, tail,'b-')
+plt.plot(temp, tail,'b-',marker = 'D', markersize=5)
 
 plt.xlabel('Temperature',fontsize=18)
 plt.ylabel(r'Fraction of points with $\chi^2>0.2$',fontsize=18)

@@ -44,18 +44,18 @@ plt.figure(figsize = (3.5,3.5))
 plt.plot(n_train, 
     pertail128, 
     c='blue',
-    marker = None,
+    marker='D',
     alpha=1.0,
     lw=3.50,
-    label='TRF, T=128')
+    label='TRF, T=128', markersize=5)
 
 plt.plot(n_train, 
     pertail128res,
     c='blue', 
-    marker = None,
+    marker='D',
     alpha=1.0,
     lw=1.25,
-    label='ResMLP, T=128')
+    label='ResMLP, T=128', markersize=5)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -63,18 +63,18 @@ plt.plot(n_train,
 
 plt.plot(n_train, pertail64, 
     c='firebrick',
-    marker = None,
+    marker='x',
     alpha=1.0,
     lw=3.50,
-    label='TRF, T=64')
+    label='TRF, T=64', markersize=5)
 
 plt.plot(n_train, 
     pertail64res, 
     'firebrick',
-    marker = None,
+    marker='x',
     alpha=1.0,
     lw=1.25,
-    label='ResMLP, T=64')
+    label='ResMLP, T=64', markersize=5)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -82,19 +82,19 @@ plt.plot(n_train,
 
 plt.plot(n_train,med128,
     c='blue',
-    linestyle=(0, (1, 1)),
-    marker = None,
+    linestyle=(0, (1, 1),),
+    marker='D',
     alpha=0.5,
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 plt.plot(n_train,med128res,
     c='blue', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker='D',
     alpha=0.5,
     lw=1.25,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 
 # ------------------------------------------------------------------
@@ -104,19 +104,19 @@ plt.plot(n_train,med128res,
 plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker='x',
     alpha=0.5, 
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 
 plt.plot(n_train,med64res,
     c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker='x',
     alpha=0.5,
     lw=1.25,
-    label='_nolegend_')
+    label='_nolegend_', markersize=5)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------

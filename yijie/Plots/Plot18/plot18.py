@@ -43,7 +43,7 @@ plt.figure(figsize = (3.5,3.5))
 plt.plot(n_train, 
     pertail128, 
     c='blue',
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=1.0,
     lw=3.50,
     label='H(x)')
@@ -51,7 +51,7 @@ plt.plot(n_train,
 plt.plot(n_train, 
     pertail128tanh,
     c='blue', 
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=1.0,
     lw=1.50,
     label='Tanh')
@@ -62,7 +62,7 @@ plt.plot(n_train,
 
 plt.plot(n_train, pertail64, 
     c='firebrick',
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.7,
     lw=3.50,
     label='_nolegend_')
@@ -70,7 +70,7 @@ plt.plot(n_train, pertail64,
 plt.plot(n_train, 
     pertail64tanh, 
     'firebrick',
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.7,
     lw=1.50,
     label='_nolegend_')
@@ -82,7 +82,7 @@ plt.plot(n_train,
 plt.plot(n_train,med128,
     c='blue',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=0.5,
     lw=3.50,
     label='_nolegend_')
@@ -90,7 +90,7 @@ plt.plot(n_train,med128,
 plt.plot(n_train,med128tanh,
     c='blue', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'D', markersize=5,
     alpha=0.5,
     lw=1.50,
     label='_nolegend_')
@@ -103,7 +103,7 @@ plt.plot(n_train,med128tanh,
 plt.plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.3, 
     lw=3.50,
     label='_nolegend_')
@@ -112,7 +112,7 @@ plt.plot(n_train,med64,
 plt.plot(n_train,med64tanh,
     c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker = None,
+    marker = 'x', markersize=5,
     alpha=0.3,
     lw=1.50,
     label='_nolegend_')
@@ -145,3 +145,5 @@ plt.ylim(0.0099,2.2)
 plt.savefig("tanhvshx.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 
 plt.savefig("tanhvshx.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+
+plt.savefig("tanhvshx.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
