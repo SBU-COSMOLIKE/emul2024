@@ -25,7 +25,7 @@ matplotlib.rcParams['savefig.format'] = 'pdf'
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
-plt.figure(figsize = (5,5))
+plt.figure(figsize = (3.5,3.5))
 
 
 pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
@@ -41,7 +41,7 @@ plt.plot(n_train,pertail128,'b-',lw=3.50,label='TRF 1Block, T=128',marker='D', m
 
 plt.plot(n_train,pertail1283b,'r-',lw=3.50,label='TRF 3Block, T=128',marker='D', markersize=5)
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=18)
+plt.xlabel('$N_{\\rm train} / 1000 $')
 plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
@@ -49,7 +49,7 @@ plt.tick_params(axis='y', labelsize=16)
 fs = 11
 l = plt.legend(
     fontsize = fs,
-    ncol=2,
+    ncol=1,
     loc='upper right',
     frameon=False,
     labelspacing=0.25,
