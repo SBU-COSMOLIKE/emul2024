@@ -83,4 +83,8 @@ plt.ylim(0.05,0.6)
 #plt.legend()
 plt.savefig("att.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 plt.savefig("att.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+<<<<<<< HEAD
 plt.savefig("att.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+=======
+plt.savefig("att.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+>>>>>>> e46262d82b9e338650c6b72187e2e05b5423ab2c
