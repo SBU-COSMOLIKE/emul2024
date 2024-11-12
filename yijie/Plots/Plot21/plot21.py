@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
 
-matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+#matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
@@ -21,7 +21,8 @@ matplotlib.rcParams['grid.color'] = 'lightgray'
 matplotlib.rcParams['legend.labelspacing'] = 0.77
 matplotlib.rcParams['savefig.bbox'] = 'tight'
 matplotlib.rcParams['savefig.format'] = 'pdf'
-
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
 
 
@@ -60,7 +61,7 @@ plt.plot(n_train,
 fs = 9
 l = plt.legend(
     fontsize = fs,
-    ncol=2,
+    ncol=1,
     loc='upper right',
     frameon=False,
     labelspacing=0.25,
@@ -75,9 +76,10 @@ l = plt.legend(
 # ------------------------------------------------------------------
 
 plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
-plt.xlim(99,499)
-plt.ylim(0.05,1.01)
+plt.xlim(101,499)
+plt.ylim(0.05,0.6)
 #plt.legend()
 plt.savefig("att.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 plt.savefig("att.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
