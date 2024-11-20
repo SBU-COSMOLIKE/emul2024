@@ -53,7 +53,7 @@ plt.plot(n_train,
 plt.plot(n_train_uni, 
     pertail128_uni, 
     c='orchid',
-    marker = 'D',
+    marker = 'o',
     alpha=1.0,
     lw=3.50,
     label='Uniform', markersize=5)
@@ -69,7 +69,7 @@ plt.plot(n_train,med128,
 plt.plot(n_train_uni,med128_uni,
     c='orchid',
     linestyle=(0, (1, 1)),
-    marker = 'D',
+    marker = 'o',
     alpha=0.5,
     lw=3.50,
     label='_nolegend_', markersize=5)
@@ -79,11 +79,11 @@ plt.plot(n_train_uni,med128_uni,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-fs = 9
+fs = 11
 l = plt.legend(
     fontsize = fs,
-    ncol=2,
-    loc='upper right',
+    ncol=1,
+    loc='lower right',
     frameon=False,
     labelspacing=0.25,
     handletextpad=0.4,
@@ -96,9 +96,11 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
-plt.xlim(201,499)
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
+plt.xlim(199,499)
 plt.ylim(0.0099,1.01)
 #plt.legend()
 plt.savefig("gaussianvsuni.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)

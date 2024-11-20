@@ -49,25 +49,25 @@ plt.plot(n_train,
 plt.plot(n_train, 
     pertail128_lin, 
     c='orchid',
-    marker = 'D',
+    marker = '*',
     alpha=1.0,
-    lw=3.50,
+    lw=0.50,
     label='Linear', markersize=5)
 
 plt.plot(n_train, 
     pertail128_lsh, 
     c='purple',
-    marker = 'D',
+    marker = 'x',
     alpha=1.0,
-    lw=3.50,
+    lw=1.50,
     label='LSH', markersize=5)
 
 plt.plot(n_train, 
     pertail128_aft, 
     c='darkcyan',
-    marker = 'D',
+    marker = 'o',
     alpha=1.0,
-    lw=3.50,
+    lw=2.50,
     label='AFT', markersize=5)
 
 
@@ -92,9 +92,11 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=18)
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
 plt.xlim(101,499)
 plt.ylim(0.05,0.6)
 #plt.legend()

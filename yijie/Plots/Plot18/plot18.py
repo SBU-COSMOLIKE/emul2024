@@ -99,8 +99,10 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
 plt.xlim(101,499)
 plt.ylim(0.0099,2.2)
 #plt.legend()
@@ -158,8 +160,10 @@ plt.plot(n_train,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
+plt.tick_params(axis='x', labelsize=16)
+plt.tick_params(axis='y', labelsize=16)
 plt.xlim(101,499)
 plt.ylim(0.0099,2.2)
 #plt.legend()

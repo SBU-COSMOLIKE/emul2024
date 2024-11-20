@@ -37,11 +37,11 @@ pertail1283b=np.array([0.5168,0.1645,0.0782,0.0614,0.0567])
 
 n_train=np.array([100,200,300,400,530])
 
-plt.plot(n_train,pertail128,c='black',lw=3.50,label='TRF 1Block, T=128',marker='D', markersize=5)
+plt.plot(n_train,pertail128,c='black',lw=1.50,label='TRF 1Block',marker='D', markersize=5)
 
-plt.plot(n_train,pertail1283b,c='pink',lw=3.50,label='TRF 3Block, T=128',marker='D', markersize=5)
+plt.plot(n_train,pertail1283b,c='pink',lw=3.50,label='TRF 3Block',marker='o', markersize=5)
 
-plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
@@ -59,5 +59,5 @@ l = plt.legend(
 )
 plt.xlim(101,499)
 plt.ylim(0.05,0.6)
-plt.savefig("fractionvsnumTRF.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.05)
+plt.savefig("fractionvsnumTRF.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.01)
 #plt.savefig("fractionvsnumTRF.svg", format="svg", bbox_inches="tight",dpi=300, pad_inches=0.05)

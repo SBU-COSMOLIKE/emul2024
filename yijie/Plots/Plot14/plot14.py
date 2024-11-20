@@ -26,7 +26,7 @@ matplotlib.rcParams['savefig.format'] = 'pdf'
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
-plt.figure(figsize = (4,4))
+plt.figure(figsize = (3.5,3.5))
 tail=np.array([0.0607, 0.0295, 0.0161 ,0.0102 ,0.0045 ,0.0033 ,0.0006 ,0.0001])
 
 
@@ -34,11 +34,12 @@ temp=np.array([128,64,32,16,8,4,2,1])
 
 plt.plot(temp, tail,'b-',marker = 'D', markersize=5)
 
-plt.xlabel('Temperature',fontsize=18)
+plt.xlabel('Temperature',fontsize=15)
 plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
 plt.xscale('log')
 plt.ylim(0.0001,0.1)
+
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
 
