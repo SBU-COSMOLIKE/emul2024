@@ -47,7 +47,7 @@ plt.plot(n_train,
     marker='D',
     alpha=1.0,
     lw=3.50,
-    label='TRF, T=128', markersize=5)
+    label='TRF', markersize=5)
 
 plt.plot(n_train, 
     pertail128res,
@@ -55,30 +55,12 @@ plt.plot(n_train,
     marker='D',
     alpha=1.0,
     lw=1.25,
-    label='ResMLP, T=128', markersize=5)
+    label='ResMLP', markersize=5)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.plot(n_train, pertail64, 
-    c='firebrick',
-    marker='x',
-    alpha=1.0,
-    lw=3.50,
-    label='TRF, T=64', markersize=5)
-
-plt.plot(n_train, 
-    pertail64res, 
-    'firebrick',
-    marker='x',
-    alpha=1.0,
-    lw=1.25,
-    label='ResMLP, T=64', markersize=5)
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
 
 plt.plot(n_train,med128,
     c='blue',
@@ -97,31 +79,7 @@ plt.plot(n_train,med128res,
     label='_nolegend_', markersize=5)
 
 
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-
-plt.plot(n_train,med64,
-    c='firebrick',
-    linestyle=(0, (1, 1)),
-    marker='x',
-    alpha=0.5, 
-    lw=3.50,
-    label='_nolegend_', markersize=5)
-
-
-plt.plot(n_train,med64res,
-    c='firebrick', 
-    linestyle=(0, (1, 1)),
-    marker='x',
-    alpha=0.5,
-    lw=1.25,
-    label='_nolegend_', markersize=5)
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-fs = 9
+fs = 12
 l = plt.legend(
     fontsize = fs,
     ncol=2,
@@ -143,5 +101,63 @@ plt.yscale('log')
 plt.xlim(101,499)
 plt.ylim(0.0099,1.01)
 #plt.legend()
-plt.savefig("plot12v2.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("plot12v2.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("plot12T128.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("plot12T128.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.clf()
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+plt.figure(figsize = (3.5,3.5))
+plt.plot(n_train,med64,
+    c='firebrick',
+    linestyle=(0, (1, 1)),
+    marker='x',
+    alpha=0.5, 
+    lw=3.50,
+    label='_nolegend_', markersize=5)
+
+
+plt.plot(n_train,med64res,
+    c='firebrick', 
+    linestyle=(0, (1, 1)),
+    marker='x',
+    alpha=0.5,
+    lw=1.25,
+    label='_nolegend_', markersize=5)
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+plt.plot(n_train, pertail64, 
+    c='firebrick',
+    marker='x',
+    alpha=1.0,
+    lw=3.50,
+    label='_nolegend_', markersize=5)
+
+plt.plot(n_train, 
+    pertail64res, 
+    'firebrick',
+    marker='x',
+    alpha=1.0,
+    lw=1.25,
+    label='_nolegend_', markersize=5)
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+#for t in l.get_texts(): t.set_va('center_baseline')
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.yscale('log')
+plt.xlim(101,499)
+plt.ylim(0.0099,1.01)
+#plt.legend()
+plt.savefig("plot12T64.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("plot12T64.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)

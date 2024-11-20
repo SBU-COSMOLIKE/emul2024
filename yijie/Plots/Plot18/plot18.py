@@ -60,20 +60,7 @@ plt.plot(n_train,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.plot(n_train, pertail64, 
-    c='firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=3.50,
-    label='_nolegend_')
 
-plt.plot(n_train, 
-    pertail64tanh, 
-    'firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=1.50,
-    label='_nolegend_')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -95,6 +82,35 @@ plt.plot(n_train,med128tanh,
     lw=1.50,
     label='_nolegend_')
 
+fs = 12
+l = plt.legend(
+    fontsize = fs,
+    ncol=1,
+    loc='upper right',
+    frameon=False,
+    labelspacing=0.25,
+    handletextpad=0.4,
+    handlelength=2,
+    columnspacing=0.4,
+)
+#for t in l.get_texts(): t.set_va('center_baseline')
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.yscale('log')
+plt.xlim(101,499)
+plt.ylim(0.0099,2.2)
+#plt.legend()
+plt.savefig("tanhvshxT128.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+
+plt.savefig("tanhvshxT128.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+
+plt.savefig("tanhvshxT128.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+
+plt.clf()
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -117,20 +133,25 @@ plt.plot(n_train,med64tanh,
     lw=1.50,
     label='_nolegend_')
 
+plt.plot(n_train, pertail64, 
+    c='firebrick',
+    marker = 'x', markersize=5,
+    alpha=0.7,
+    lw=3.50,
+    label='_nolegend_')
+
+plt.plot(n_train, 
+    pertail64tanh, 
+    'firebrick',
+    marker = 'x', markersize=5,
+    alpha=0.7,
+    lw=1.50,
+    label='_nolegend_')
+
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-fs = 10
-l = plt.legend(
-    fontsize = fs,
-    ncol=1,
-    loc='upper right',
-    frameon=False,
-    labelspacing=0.25,
-    handletextpad=0.4,
-    handlelength=2,
-    columnspacing=0.4,
-)
+
 #for t in l.get_texts(): t.set_va('center_baseline')
 
 # ------------------------------------------------------------------
@@ -142,8 +163,8 @@ plt.yscale('log')
 plt.xlim(101,499)
 plt.ylim(0.0099,2.2)
 #plt.legend()
-plt.savefig("tanhvshx.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("tanhvshxT64.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 
-plt.savefig("tanhvshx.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("tanhvshxT64.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
 
-plt.savefig("tanhvshx.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("tanhvshxT64.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)

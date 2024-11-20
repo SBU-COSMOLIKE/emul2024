@@ -61,24 +61,7 @@ plt.plot(n_train,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.plot(n_train, pertail64, 
-    c='firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=3.50,
-    label='_nolegend_')
 
-plt.plot(n_train, 
-    pertail64sqrt, 
-    'firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=1.50,
-    label='_nolegend_')
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
 
 plt.plot(n_train,med128,
     c='blue',
@@ -96,6 +79,52 @@ plt.plot(n_train,med128sqrt,
     lw=1.50,
     label='_nolegend_')
 
+fs = 12
+l = plt.legend(
+    fontsize = fs,
+    ncol=1,
+    loc='upper right',
+    frameon=False,
+    labelspacing=0.25,
+    handletextpad=0.4,
+    handlelength=2,
+    columnspacing=0.35,
+)
+#for t in l.get_texts(): t.set_va('center_baseline')
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.yscale('log')
+plt.xlim(101,499)
+plt.ylim(0.0099,4.9)
+#plt.legend()
+plt.savefig("rescalevssqrtT128.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrtT128.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrtT128.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.clf()
+
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+plt.plot(n_train, pertail64, 
+    c='firebrick',
+    marker = 'x', markersize=5,
+    alpha=0.7,
+    lw=3.50,
+    label='_nolegend_')
+
+plt.plot(n_train, 
+    pertail64sqrt, 
+    'firebrick',
+    marker = 'x', markersize=5,
+    alpha=0.7,
+    lw=1.50,
+    label='_nolegend_')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -121,17 +150,7 @@ plt.plot(n_train,med64sqrt,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-fs = 10
-l = plt.legend(
-    fontsize = fs,
-    ncol=1,
-    loc='upper right',
-    frameon=False,
-    labelspacing=0.25,
-    handletextpad=0.4,
-    handlelength=2,
-    columnspacing=0.35,
-)
+
 #for t in l.get_texts(): t.set_va('center_baseline')
 
 # ------------------------------------------------------------------
@@ -143,6 +162,6 @@ plt.yscale('log')
 plt.xlim(101,499)
 plt.ylim(0.0099,4.9)
 #plt.legend()
-plt.savefig("rescalevssqrt.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrt.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrt.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrtT64.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrtT64.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+plt.savefig("rescalevssqrtT64.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)

@@ -28,7 +28,8 @@ matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
 pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
 pertail128_lin=np.array([0.9846, 0.63,0.3675 , 0.2103, 0.2138])
-
+pertail128_lsh=np.array([0.9988,0.9423,0.3008,0.147,0.0963])
+pertail128_aft=np.array([0.6033,0.2176,0.1098,0.0938,0.0575])
 n_train=np.array([100,200,300,400,530])
 
 plt.figure(figsize = (3.5,3.5))
@@ -53,6 +54,22 @@ plt.plot(n_train,
     lw=3.50,
     label='Linear', markersize=5)
 
+plt.plot(n_train, 
+    pertail128_lsh, 
+    c='purple',
+    marker = 'D',
+    alpha=1.0,
+    lw=3.50,
+    label='LSH', markersize=5)
+
+plt.plot(n_train, 
+    pertail128_aft, 
+    c='darkcyan',
+    marker = 'D',
+    alpha=1.0,
+    lw=3.50,
+    label='AFT', markersize=5)
+
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -75,7 +92,7 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $')
+plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=18)
 plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
 plt.xlim(101,499)
@@ -83,8 +100,4 @@ plt.ylim(0.05,0.6)
 #plt.legend()
 plt.savefig("att.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 plt.savefig("att.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-<<<<<<< HEAD
 plt.savefig("att.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-=======
-plt.savefig("att.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
->>>>>>> e46262d82b9e338650c6b72187e2e05b5423ab2c
