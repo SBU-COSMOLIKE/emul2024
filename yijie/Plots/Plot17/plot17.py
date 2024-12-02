@@ -28,14 +28,14 @@ med128=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
 pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
 
 
-med128_uni=np.array([0.562,0.380,0.172,0.107])
-pertail128_uni=np.array([0.8383,0.6708,0.4666,0.3581])
+med128_uni=np.array([0.562,0.380,0.172,0.107,0.017])
+pertail128_uni=np.array([0.8383,0.6708,0.4666,0.3581,0.0774])
 
 
 
 n_train=np.array([100,200,300,400,530])
 
-n_train_uni=np.array([200,300,430,530])
+n_train_uni=np.array([200,300,430,530,1800])
 plt.figure(figsize = (3.5,3.5))
 
 # ------------------------------------------------------------------
@@ -100,7 +100,7 @@ plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
-plt.xlim(199,499)
+plt.xlim(199,1801)
 plt.ylim(0.0099,1.01)
 #plt.legend()
 plt.savefig("gaussianvsuni.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
