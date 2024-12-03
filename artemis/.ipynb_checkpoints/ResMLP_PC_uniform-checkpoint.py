@@ -17,11 +17,18 @@ matplotlib.use('Agg') # Switch to a backend that does not require a display.
 from scipy.stats import chi2
 from scipy.interpolate import interp1d
 
+try:
+    matplotlib.rcParams['font.family'] = 'serif'
+    matplotlib.rcParams['text.usetex'] = True 
+except Exception as e:
+    print(f"Warning: Could not configure LaTeX settings: {e}")
 
-# - I want the ML to take as input 17 parameters corresponding to $[ \{ \alpha_i \}, \Omega_m, \Omega_m h^2 ]$ and to output the luminosity distance of the SN as a function of z, i.e. $d_L(z)$.
+
+# - I want the ML to take as input 52 parameters corresponding to $[ \{ \alpha_i \}, \Omega_m, \Omega_m h^2 ]$ and to output the luminosity distance of the SN as a function of z, i.e. $d_L(z)$.
 # - In practice what I want is the ML to output an array of $d_L$, one of every bin in z. Therefore: $input = 1 \times 17$ and $output=1 \times N_{zbins}$.
 
 # In[2]:
+
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -228,9 +235,9 @@ class ResMLP(nn.Module):
 
 
 ## Training 
-model = ResMLP(17,500,16)
+model = ResMLP(52,1000,8)
 model.to(device)
-epochs = 200
+epochs = 150
 train_losses = []
 val_losses = []
 # criterion = nn.MSELoss()
@@ -251,7 +258,7 @@ SNpoints = list(zip(zSN, NSN))
 
 fNSN = interp1d(zSN, NSN, kind='linear', fill_value='extrapolate')
 
-zBinsFisher = np.linspace(0.0334, 1.7, 500)
+zBinsFisher = np.linspace(0.0334, 1.7, 1000)
 
 # This function returns the sigma^2 error defined in equation (A2)
 
@@ -279,7 +286,7 @@ def Sigma2SNFisher(i, Nz):
 i_values = range(0, len(zBinsFisher))
 
 # Compute Sigma2SNFisher for each i value (each redshift bin of interest)
-sigma2_values = [Sigma2SNFisher(i,500) for i in i_values]
+sigma2_values = [Sigma2SNFisher(i,1000) for i in i_values]
 sigma2_values = np.array(sigma2_values)
 
 sigma2_values_tensor = torch.from_numpy(sigma2_values).float().to(device)
@@ -376,7 +383,10 @@ plt.ylabel('Loss')
 plt.yscale('log')
 plt.title('Training and Validation Loss')
 plt.legend()
-plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/train_vs_val_loss_15PCs.pdf', format="pdf", bbox_inches="tight")
+try:
+    plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/train_vs_val_loss_15PCs.pdf', format="pdf", bbox_inches="tight")
+except Exception as e:
+    print(f'Error saving the training and validation loss plot: {e}')
 
 
 
@@ -399,7 +409,7 @@ with torch.no_grad():
 train_y_mean = train_y_mean.to(device)
 train_y_std = train_y_std.to(device)
 model.eval()
-zBinsFisher = np.linspace(0.0334, 1.7, 500)
+zBinsFisher = np.linspace(0.0334, 1.7, 1000)
 
 with torch.no_grad():
     for data, labels in test_loader:
@@ -414,8 +424,10 @@ with torch.no_grad():
         plt.ylabel('logdL')
         plt.title(r'Expected Vs predicted $logd_L$ scaled back to original')
         plt.legend()
-        plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/expected_vs_pred_15PCs.pdf', format="pdf", bbox_inches="tight")
-        
+        try:
+            plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/expected_vs_pred_15PCs.pdf', format="pdf", bbox_inches="tight")
+        except Exception as e:
+            print(f'Error saving the Expected Vs predicted logd_L plot: {e}')
         break
         
 
@@ -424,7 +436,7 @@ with torch.no_grad():
 
 ## Predicted vs expected NOT rescaled back to original scale
 model.eval()
-zBinsFisher = np.linspace(0.0334, 1.7, 500)
+zBinsFisher = np.linspace(0.0334, 1.7, 1000)
 with torch.no_grad():
     for data, labels in test_loader:
         data, labels = data.to(device), labels.to(device)
@@ -440,7 +452,10 @@ with torch.no_grad():
         plt.ylabel('logdL')
         plt.title('Predicted vs Expected NOT rescaled back to original scale')
         plt.legend()
-        plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/exp_vs_pred_not_rescaled_15PCs.pdf', format="pdf", bbox_inches="tight")
+        try:
+            plt.savefig('/gpfs/home/argiannakopo/cosmo_plots_temp/exp_vs_pred_not_rescaled_15PCs.pdf', format="pdf", bbox_inches="tight")
+        except Exception as e:
+            print(f'Error saving the predicted vs expected not rescaled plot: {e}')
         
         break
 
@@ -489,7 +504,7 @@ print(f"Chi-squared statistic: {chi_sq_mean:.4f}")
 
 
 ### SAVE THE MODEL 
-torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_17_500_16_100epochs.pth')
+torch.save(model.state_dict(), '/gpfs/scratch/argiannakopo/ResMLP_52_1000_8_150epochs.pth')
 
 
 
