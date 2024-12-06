@@ -33,56 +33,66 @@ pertail64=np.array([0.3907,0.0552,0.0399,0.0315,0.0295])
 pertail64cnn=np.array([0.9996,0.2316,0.0392,0.0327,0.0291])
 n_train=np.array([100,200,300,400,530])
 
-matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+#matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
-plt.figure(figsize = (3.5,3.5))
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
+xmarkersz = 11
+Dmarkersz = 7
+yupperlim = 3
+ydownlim = 0.008
+xupperlim = 550
+xdownlim = 90
+fig, axs = plt.subplots(1, 1, figsize=(3.5, 3.5),sharey=True) 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.plot(n_train, 
+axs.plot(n_train, 
     pertail128, 
     c='blue',
-    marker='D',
+    marker='o',
     alpha=1.0,
     lw=3.50,
-    label='TRF', markersize=5)
+    label='TRF', markersize=xmarkersz)
 
-plt.plot(n_train, 
+axs.plot(n_train, 
     pertail128cnn,
-    c='blue', 
+    c='firebrick', 
     marker='D',
     alpha=1.0,
     lw=1.25,
-    label='CNN', markersize=5)
+    label='CNN', markersize=Dmarkersz)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
 
-plt.plot(n_train,med128,
+axs.plot(n_train,med128,
     c='blue',
     linestyle=(0, (1, 1),),
-    marker='D',
+    marker='o',
     alpha=0.5,
     lw=3.50,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=xmarkersz)
 
-plt.plot(n_train,med128cnn,
-    c='blue', 
+axs.plot(n_train,med128cnn,
+    c='firebrick', 
     linestyle=(0, (1, 1)),
     marker='D',
     alpha=0.5,
     lw=1.25,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=Dmarkersz)
 
-
-fs = 12
-l = plt.legend(
+arr=np.array([0,0])
+axs.plot(arr,arr,c='black',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
+axs.plot(arr,arr,c='black',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
+fs = 13
+l = axs.legend(
     fontsize = fs,
-    ncol=2,
+    ncol=1,
     loc='upper right',
     frameon=False,
     labelspacing=0.25,
@@ -96,55 +106,60 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
-plt.yscale('log')
-plt.tick_params(axis='x', labelsize=16)
-plt.tick_params(axis='y', labelsize=16)
-plt.xlim(101,499)
-plt.ylim(0.0099,1.01)
+axs.set_xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
+axs.set_yscale('log')
+axs.tick_params(axis='x', labelsize=16)
+axs.tick_params(axis='y', labelsize=16)
+axs.set_xlim(xdownlim,xupperlim)
+axs.set_ylim(ydownlim,yupperlim)
+axs.text(0.05, 0.05, '$T_{\\rm test} = 128$', transform=axs.transAxes, fontsize=15,
+        verticalalignment='bottom', bbox=None,c='black')
 #plt.legend()
-plt.savefig("TRFCNNT128.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("TRFCNNT128.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.clf()
+
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-plt.figure(figsize = (3.5,3.5))
-plt.plot(n_train,med64,
+"""
+axs[1].plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
-    marker='x',
+    marker='o',
     alpha=0.5, 
     lw=3.50,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=xmarkersz)
 
 
-plt.plot(n_train,med64cnn,
+axs[1].plot(n_train,med64sqrt,
     c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker='x',
+    marker='D',
     alpha=0.5,
     lw=1.25,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=Dmarkersz)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-plt.plot(n_train, pertail64, 
+axs[1].plot(n_train, pertail64, 
     c='firebrick',
-    marker='x',
+    marker='o',
     alpha=1.0,
     lw=3.50,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=xmarkersz)
 
-plt.plot(n_train, 
-    pertail64cnn, 
+axs[1].plot(n_train, 
+    pertail64sqrt, 
     'firebrick',
-    marker='x',
+    marker='D',
     alpha=1.0,
     lw=1.25,
-    label='_nolegend_', markersize=5)
+    label='_nolegend_', markersize=Dmarkersz)
+axs[1].text(0.75, 0.05, '$T = 64$', transform=axs[1].transAxes, fontsize=18,
+        verticalalignment='bottom', bbox=None,c='firebrick')
+arr=np.array([0,0])
+axs[1].plot(arr,arr,c='firebrick',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{med}$')
+axs[1].plot(arr,arr,c='firebrick',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -156,12 +171,23 @@ plt.plot(n_train,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
-plt.yscale('log')
-plt.tick_params(axis='x', labelsize=16)
-plt.tick_params(axis='y', labelsize=16)
-plt.xlim(101,499)
-plt.ylim(0.0099,1.01)
+l = axs[1].legend(
+    fontsize = fs,
+    ncol=1,
+    loc='upper right',
+    frameon=False,
+    labelspacing=0.25,
+    handletextpad=0.4,
+    handlelength=2,
+    columnspacing=0.4,
+)
+axs[1].set_xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
+axs[1].set_yscale('log')
+axs[1].tick_params(axis='x', labelsize=16)
+axs[1].tick_params(axis='y', labelsize=16)
+axs[1].set_xlim(xdownlim,xupperlim)
+axs[1].set_ylim(ydownlim,yupperlim)
 #plt.legend()
-plt.savefig("TRFCNNT64.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("TRFCNNT64.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+"""
+fig.savefig("plot22new.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+fig.savefig("plot22new.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)

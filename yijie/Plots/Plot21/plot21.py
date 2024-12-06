@@ -37,14 +37,14 @@ plt.figure(figsize = (3.5,3.5))
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-
+marksz=9
 plt.plot(n_train, 
     pertail128, 
     c='black',
     marker = 'D',
     alpha=1.0,
     lw=3.50,
-    label='Dot Product', markersize=5)
+    label='Dot Product', markersize=marksz)
 
 plt.plot(n_train, 
     pertail128_lin, 
@@ -52,15 +52,15 @@ plt.plot(n_train,
     marker = '*',
     alpha=1.0,
     lw=0.50,
-    label='Linear', markersize=5)
+    label='Linear', markersize= marksz)
 
 plt.plot(n_train, 
     pertail128_lsh, 
     c='purple',
-    marker = 'x',
+    marker = '^',
     alpha=1.0,
     lw=1.50,
-    label='LSH', markersize=5)
+    label='LSH', markersize=marksz)
 
 plt.plot(n_train, 
     pertail128_aft, 
@@ -68,20 +68,20 @@ plt.plot(n_train,
     marker = 'o',
     alpha=1.0,
     lw=2.50,
-    label='AFT', markersize=5)
+    label='AFT', markersize=7)
 
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-fs = 9
+fs = 11
 l = plt.legend(
     fontsize = fs,
     ncol=1,
     loc='upper right',
     frameon=False,
-    labelspacing=0.25,
+    labelspacing=0.65,
     handletextpad=0.4,
     handlelength=2,
     columnspacing=0.4,
@@ -97,8 +97,8 @@ plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
-plt.xlim(101,499)
-plt.ylim(0.05,0.6)
+plt.xticks([100,200,300,400, 500])
+plt.ylim(0.05,1.6)
 #plt.legend()
 plt.savefig("att.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
 plt.savefig("att.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)

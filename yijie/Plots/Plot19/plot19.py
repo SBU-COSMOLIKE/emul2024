@@ -22,7 +22,9 @@ matplotlib.rcParams['grid.color'] = 'lightgray'
 matplotlib.rcParams['legend.labelspacing'] = 0.77
 matplotlib.rcParams['savefig.bbox'] = 'tight'
 matplotlib.rcParams['savefig.format'] = 'pdf'
-#matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
+
 
 med128=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
 med128sqrt=np.array([42.169,3.538,0.332,0.321,0.157])
@@ -33,54 +35,61 @@ med64sqrt=np.array([26.443,2.081,0.225,0.208,0.123])
 pertail64=np.array([.3907,0.0552,0.0399,0.0315,0.0295])
 pertail64sqrt=np.array([1,1,0.5630,0.5147,0.3011])
 n_train=np.array([100,200,300,400,530])
-matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
+#matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
-plt.figure(figsize = (3.5,3.5))
-
+xmarkersz = 11
+Dmarkersz = 7
+yupperlim = 7.5
+ydownlim = 0.008
+xupperlim = 550
+xdownlim = 90
+fig, axs = plt.subplots(1, 1, figsize=(3.5, 3.5),sharey=True) 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.plot(n_train, 
+axs.plot(n_train, 
     pertail128, 
     c='blue',
-    marker = 'D', markersize=5,
+    marker='o',
     alpha=1.0,
     lw=3.50,
-    label='$L=\sqrt{\Delta\widetilde{\chi}^2}$')
+    label='$L^2=\Delta\widetilde{\chi}^2$', markersize=xmarkersz)
 
-plt.plot(n_train, 
+axs.plot(n_train, 
     pertail128sqrt,
-    c='blue', 
-    marker = 'D', markersize=5,
+    c='firebrick', 
+    marker='D',
     alpha=1.0,
-    lw=1.50,
-    label='$L=\sqrt{1+2\Delta\chi^2}$')
+    lw=1.25,
+    label='$L^2=1+2\Delta\chi^2$', markersize=Dmarkersz)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
 
-
-plt.plot(n_train,med128,
+axs.plot(n_train,med128,
     c='blue',
-    linestyle=(0, (1, 1)),
-    marker = 'D', markersize=5,
+    linestyle=(0, (1, 1),),
+    marker='o',
     alpha=0.5,
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=xmarkersz)
 
-plt.plot(n_train,med128sqrt,
-    c='blue', 
+axs.plot(n_train,med128sqrt,
+    c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker = 'D', markersize=5,
+    marker='D',
     alpha=0.5,
-    lw=1.50,
-    label='_nolegend_')
+    lw=1.25,
+    label='_nolegend_', markersize=Dmarkersz)
 
-fs = 12
-l = plt.legend(
+arr=np.array([0,0])
+axs.plot(arr,arr,c='black',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
+axs.plot(arr,arr,c='black',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
+fs = 11
+l = axs.legend(
     fontsize = fs,
     ncol=1,
     loc='upper right',
@@ -88,7 +97,7 @@ l = plt.legend(
     labelspacing=0.25,
     handletextpad=0.4,
     handlelength=2,
-    columnspacing=0.35,
+    columnspacing=0.4,
 )
 #for t in l.get_texts(): t.set_va('center_baseline')
 
@@ -96,58 +105,60 @@ l = plt.legend(
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
-plt.yscale('log')
-plt.tick_params(axis='x', labelsize=16)
-plt.tick_params(axis='y', labelsize=16)
-plt.xlim(101,499)
-plt.ylim(0.0099,4.9)
+axs.set_xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
+axs.set_yscale('log')
+axs.tick_params(axis='x', labelsize=16)
+axs.tick_params(axis='y', labelsize=16)
+axs.set_xlim(xdownlim,xupperlim)
+axs.set_ylim(ydownlim,yupperlim)
+axs.text(0.05, 0.05, '$T_{\\rm test} = 128$', transform=axs.transAxes, fontsize=15,
+        verticalalignment='bottom', bbox=None,c='black')
 #plt.legend()
-plt.savefig("rescalevssqrtT128.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrtT128.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrtT128.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.clf()
 
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
-
-plt.plot(n_train, pertail64, 
-    c='firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=3.50,
-    label='_nolegend_')
-
-plt.plot(n_train, 
-    pertail64sqrt, 
-    'firebrick',
-    marker = 'x', markersize=5,
-    alpha=0.7,
-    lw=1.50,
-    label='_nolegend_')
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-
-plt.plot(n_train,med64,
+"""
+axs[1].plot(n_train,med64,
     c='firebrick',
     linestyle=(0, (1, 1)),
-    marker = 'x', markersize=5,
-    alpha=0.3, 
+    marker='o',
+    alpha=0.5, 
     lw=3.50,
-    label='_nolegend_')
+    label='_nolegend_', markersize=xmarkersz)
 
 
-plt.plot(n_train,med64sqrt,
+axs[1].plot(n_train,med64sqrt,
     c='firebrick', 
     linestyle=(0, (1, 1)),
-    marker = 'x', markersize=5,
-    alpha=0.3,
-    lw=1.50,
-    label='_nolegend_')
+    marker='D',
+    alpha=0.5,
+    lw=1.25,
+    label='_nolegend_', markersize=Dmarkersz)
+
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+axs[1].plot(n_train, pertail64, 
+    c='firebrick',
+    marker='o',
+    alpha=1.0,
+    lw=3.50,
+    label='_nolegend_', markersize=xmarkersz)
+
+axs[1].plot(n_train, 
+    pertail64sqrt, 
+    'firebrick',
+    marker='D',
+    alpha=1.0,
+    lw=1.25,
+    label='_nolegend_', markersize=Dmarkersz)
+axs[1].text(0.75, 0.05, '$T = 64$', transform=axs[1].transAxes, fontsize=18,
+        verticalalignment='bottom', bbox=None,c='firebrick')
+arr=np.array([0,0])
+axs[1].plot(arr,arr,c='firebrick',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{med}$')
+axs[1].plot(arr,arr,c='firebrick',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
@@ -159,13 +170,23 @@ plt.plot(n_train,med64sqrt,
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
-plt.yscale('log')
-plt.tick_params(axis='x', labelsize=16)
-plt.tick_params(axis='y', labelsize=16)
-plt.xlim(101,499)
-plt.ylim(0.0099,4.9)
+l = axs[1].legend(
+    fontsize = fs,
+    ncol=1,
+    loc='upper right',
+    frameon=False,
+    labelspacing=0.25,
+    handletextpad=0.4,
+    handlelength=2,
+    columnspacing=0.4,
+)
+axs[1].set_xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
+axs[1].set_yscale('log')
+axs[1].tick_params(axis='x', labelsize=16)
+axs[1].tick_params(axis='y', labelsize=16)
+axs[1].set_xlim(xdownlim,xupperlim)
+axs[1].set_ylim(ydownlim,yupperlim)
 #plt.legend()
-plt.savefig("rescalevssqrtT64.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrtT64.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
-plt.savefig("rescalevssqrtT64.jpg", format="jpg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+"""
+fig.savefig("plot19new.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+fig.savefig("plot19new.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
