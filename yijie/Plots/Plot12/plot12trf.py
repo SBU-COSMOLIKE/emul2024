@@ -45,8 +45,8 @@ plt.plot(n_train,med1283b,c='pink',linestyle=(0, (1, 1),),lw=4.00,label='_nolege
 plt.plot(n_train,med128,c='black',linestyle=(0, (1, 1),),lw=1.50,label='_nolegend_',marker='D', markersize=6)
 
 arr=np.array([0,0])
-plt.plot(arr,arr,c='pink',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
-plt.plot(arr,arr,c='pink',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
+plt.plot(arr,arr,c='black',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
+plt.plot(arr,arr,c='black',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
 plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 #plt.ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 plt.yscale('log')
