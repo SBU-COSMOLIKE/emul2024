@@ -39,8 +39,8 @@ pertail1283b=np.array([0.5168,0.1645,0.0782,0.0614,0.0567])
 
 
 n_train=np.array([100,200,300,400,530])
-plt.plot(n_train,pertail1283b,c='pink',lw=4.00,label='$N_{\\rm ResMLP}=3, N_{\\rm TRF}=3$',marker='o', markersize=10)
-plt.plot(n_train,pertail128,c='black',lw=1.50,label='$N_{\\rm ResMLP}=3, N_{\\rm TRF}=1$',marker='D', markersize=6)
+plt.plot(n_train,pertail1283b,c='pink',lw=4.00,label='$N_{\\rm TRF}=3$',marker='o', markersize=10)
+plt.plot(n_train,pertail128,c='black',lw=1.50,label='$N_{\\rm TRF}=1$',marker='D', markersize=6)
 plt.plot(n_train,med1283b,c='pink',linestyle=(0, (1, 1),),lw=4.00,label='_nolegend_',marker='o', markersize=10)
 plt.plot(n_train,med128,c='black',linestyle=(0, (1, 1),),lw=1.50,label='_nolegend_',marker='D', markersize=6)
 
@@ -52,7 +52,7 @@ plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
-fs = 11
+fs = 13
 l = plt.legend(
     fontsize = fs,
     ncol=1,
