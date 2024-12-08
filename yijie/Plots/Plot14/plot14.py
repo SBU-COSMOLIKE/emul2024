@@ -27,7 +27,7 @@ matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
 plt.figure(figsize = (3.5,3.5))
-tail=np.array([0.0607, 0.0295, 0.0161 ,0.0102 ,0.0045 ,0.0033 ,0.0006 ,0.0001])
+tail=np.array([0.0607, 0.0412, 0.0297 ,0.0234 ,0.0122 ,0.0025 ,0.0014 ,0.0001])
 
 
 temp=np.array([128,64,32,16,8,4,2,1])
