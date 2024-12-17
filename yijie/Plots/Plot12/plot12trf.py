@@ -31,19 +31,24 @@ med128=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
 
 med1283b=np.array([0.217,0.035,0.012,0.012,0.005])
 
+med1286b3b=np.array([198019,28.572,0.070,0.822,0.066])
+
 pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
 
 pertail1283b=np.array([0.5168,0.1645,0.0782,0.0614,0.0567])
+
+pertail1286b3b=np.array([1,1,0.3001,0.8164,0.2691])
 
 
 
 
 n_train=np.array([100,200,300,400,530])
-plt.plot(n_train,pertail1283b,c='pink',lw=4.00,label='$N_{\\rm TRF}=3$',marker='o', markersize=10)
-plt.plot(n_train,pertail128,c='black',lw=1.50,label='$N_{\\rm TRF}=1$',marker='D', markersize=6)
+plt.plot(n_train,pertail1283b,c='pink',lw=4.00,label='$N_{\\rm ResBlock}=3,N_{\\rm TRF}=3$',marker='o', markersize=10)
+plt.plot(n_train,pertail128,c='black',lw=1.50,label='$N_{\\rm ResBlock}=3,N_{\\rm TRF}=1$',marker='D', markersize=6)
 plt.plot(n_train,med1283b,c='pink',linestyle=(0, (1, 1),),lw=4.00,label='_nolegend_',marker='o', markersize=10)
 plt.plot(n_train,med128,c='black',linestyle=(0, (1, 1),),lw=1.50,label='_nolegend_',marker='D', markersize=6)
-
+plt.plot(n_train,pertail1286b3b,c='grey',lw=2.50,label='$N_{\\rm ResBlock}=6,N_{\\rm TRF}=3$',marker='^', markersize=6)
+plt.plot(n_train,med1286b3b,c='grey',linestyle=(0, (1, 1),),lw=2.5,label='_nolegend_',marker='^', markersize=6)
 arr=np.array([0,0])
 plt.plot(arr,arr,c='black',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
 plt.plot(arr,arr,c='black',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
@@ -52,7 +57,7 @@ plt.xlabel('$N_{\\rm train} / 1000 $',fontsize=15)
 plt.yscale('log')
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
-fs = 13
+fs = 9
 l = plt.legend(
     fontsize = fs,
     ncol=1,
@@ -65,6 +70,6 @@ l = plt.legend(
 )
 plt.xlim(90,550)
 plt.xticks([100,200,300,400, 500])
-plt.ylim(0.02,0.8)
+plt.ylim(0.02,30)
 plt.savefig("fractionvsnumTRF.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.01)
 #plt.savefig("fractionvsnumTRF.svg", format="svg", bbox_inches="tight",dpi=300, pad_inches=0.05)

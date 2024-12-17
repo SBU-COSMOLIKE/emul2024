@@ -26,21 +26,21 @@ matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{tipa}'
 
 
-med128=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
-med128sqrt=np.array([42.169,3.538,0.332,0.321,0.157])
-pertail128=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
-pertail128sqrt=np.array([1,1,0.7095,0.6601,0.4204])
-med64=np.array([0.138,0.029,0.015,0.008,0.004])
-med64sqrt=np.array([26.443,2.081,0.225,0.208,0.123])
-pertail64=np.array([.3907,0.0552,0.0399,0.0315,0.0295])
-pertail64sqrt=np.array([1,1,0.5630,0.5147,0.3011])
+med128l4=np.array([0.215, 0.038, 0.019 ,0.011,0.006])
+med128l3=np.array([42.169,3.538,0.332,0.321,0.157])
+pertail128l4=np.array([0.5169,0.1696,0.1055,0.0807 ,0.0607])
+pertail128l3=np.array([1,1,0.7095,0.6601,0.4204])
+med128l2=np.array([0.898,0.039,0.037,0.036,0.018])
+pertail128l2=np.array([0.9634,0.1374,0.1344,0.1174,0.0721])
+med128l5=np.array([1.946,0.226,0.120,0.042,0.035])
+pertail128l5=np.array([0.9894,0.5292,0.3861,0.1765,0.1534])
 n_train=np.array([100,200,300,400,530])
 #matplotlib.use('TKAgg')# This is for windows, you may not need this for Mac/Linux
 
 xmarkersz = 11
 Dmarkersz = 7
-yupperlim = 7.5
-ydownlim = 0.008
+yupperlim = 1.25
+ydownlim = 0.05
 xupperlim = 550
 xdownlim = 90
 fig, axs = plt.subplots(1, 1, figsize=(3.5, 3.5),sharey=True) 
@@ -49,50 +49,46 @@ fig, axs = plt.subplots(1, 1, figsize=(3.5, 3.5),sharey=True)
 # ------------------------------------------------------------------
 
 axs.plot(n_train, 
-    pertail128, 
+    pertail128l2, 
     c='blue',
     marker='o',
     alpha=1.0,
     lw=3.50,
-    label='$\mathcal{L}_4^2=\Delta\widetilde{\chi}^2$', markersize=xmarkersz)
+    label='$\mathcal{L}_2$', markersize=xmarkersz)
 
 axs.plot(n_train, 
-    pertail128sqrt,
+    pertail128l3,
     c='firebrick', 
     marker='D',
     alpha=1.0,
-    lw=1.25,
-    label='$\mathcal{L}_3^2=1+2\Delta\chi^2$', markersize=Dmarkersz)
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-
-
-axs.plot(n_train,med128,
-    c='blue',
-    linestyle=(0, (1, 1),),
+    lw=3,
+    label='$\mathcal{L}_3$', markersize=Dmarkersz)
+axs.plot(n_train, 
+    pertail128l4, 
+    c='grey',
     marker='o',
-    alpha=0.5,
-    lw=3.50,
-    label='_nolegend_', markersize=xmarkersz)
+    alpha=1.0,
+    lw=2.50,
+    label='$\mathcal{L}_4$', markersize=xmarkersz)
 
-axs.plot(n_train,med128sqrt,
-    c='firebrick', 
-    linestyle=(0, (1, 1)),
+axs.plot(n_train, 
+    pertail128l5,
+    c='pink', 
     marker='D',
-    alpha=0.5,
-    lw=1.25,
-    label='_nolegend_', markersize=Dmarkersz)
+    alpha=1.0,
+    lw=2,
+    label='$\mathcal{L}_5$', markersize=Dmarkersz)
 
-arr=np.array([0,0])
-axs.plot(arr,arr,c='black',linestyle=(0, (1, 1)),label='$\langle\Delta\chi^2\\rangle_{\\rm med}$')
-axs.plot(arr,arr,c='black',label=r'\texthtbardotlessj($\Delta\chi^2>0.2$)')
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
+
 fs = 11
 l = axs.legend(
     fontsize = fs,
     ncol=1,
-    loc='upper right',
+    loc='center right',
     frameon=False,
     labelspacing=0.25,
     handletextpad=0.4,
@@ -106,6 +102,7 @@ l = axs.legend(
 # ------------------------------------------------------------------
 
 axs.set_xlabel('$N_{\\rm train} / 1000 $',fontsize=14)
+axs.set_ylabel(r'\texthtbardotlessj($\Delta\chi^2>0.2$)',fontsize=18)
 axs.set_yscale('log')
 axs.tick_params(axis='x', labelsize=16)
 axs.tick_params(axis='y', labelsize=16)
@@ -188,5 +185,5 @@ axs[1].set_xlim(xdownlim,xupperlim)
 axs[1].set_ylim(ydownlim,yupperlim)
 #plt.legend()
 """
-fig.savefig("plot19new.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
-fig.savefig("plot19new.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
+fig.savefig("plot19newtail.pdf", format="pdf", bbox_inches="tight", dpi=300, pad_inches=0.05)
+fig.savefig("plot19newtail.svg", format="svg", bbox_inches="tight", dpi=300, pad_inches=0.05)
