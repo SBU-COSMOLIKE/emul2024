@@ -33,7 +33,7 @@ name=[r'$\Omega_b$',r'$\Omega_c$',r'$H_0$',r'$\tau$',r'$n_s$',r'$\log{10^{10}A_s
 norm = plt.Normalize(chi2out.min(),chi2out.max())
 cmap = plt.get_cmap("viridis")
 
-plt.scatter(outlier[:,5], outlier[:,4],
+scatter=plt.scatter(outlier[:,5], outlier[:,4],
            linewidths=1, alpha=0.7,
            edgecolor='k',
            s = 20,
@@ -44,6 +44,7 @@ plt.ylabel(name[4],fontsize=14)
 plt.tick_params(axis='x', labelsize=13)
 plt.tick_params(axis='y', labelsize=13)
 plt.xticks([2,2.5,3,3.5,4])
-plt.colorbar()
+cbar =plt.colorbar(scatter)
+cbar.set_label(r'$\log{\Delta\chi^2}$', rotation=270, labelpad=15,fontsize=14)
 
 plt.savefig("outuni.pdf", format="pdf", bbox_inches="tight",dpi=300, pad_inches=0.01)
