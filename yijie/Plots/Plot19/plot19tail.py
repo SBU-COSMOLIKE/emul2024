@@ -54,7 +54,7 @@ axs.plot(n_train,
     marker='o',
     alpha=1.0,
     lw=3.50,
-    label='$\mathcal{L}_2$', markersize=xmarkersz)
+    markersize=xmarkersz)
 
 axs.plot(n_train, 
     pertail128l3,
@@ -62,14 +62,14 @@ axs.plot(n_train,
     marker='D',
     alpha=1.0,
     lw=3,
-    label='$\mathcal{L}_3$', markersize=Dmarkersz)
+    markersize=Dmarkersz)
 axs.plot(n_train, 
     pertail128l4, 
     c='grey',
     marker='o',
     alpha=1.0,
     lw=2.50,
-    label='$\mathcal{L}_4$', markersize=xmarkersz)
+    markersize=xmarkersz)
 
 axs.plot(n_train, 
     pertail128l5,
@@ -77,24 +77,12 @@ axs.plot(n_train,
     marker='D',
     alpha=1.0,
     lw=2,
-    label='$\mathcal{L}_5$', markersize=Dmarkersz)
+    markersize=Dmarkersz)
 
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
-
-fs = 11
-l = axs.legend(
-    fontsize = fs,
-    ncol=1,
-    loc='center right',
-    frameon=False,
-    labelspacing=0.25,
-    handletextpad=0.4,
-    handlelength=2,
-    columnspacing=0.4,
-)
 #for t in l.get_texts(): t.set_va('center_baseline')
 
 # ------------------------------------------------------------------
